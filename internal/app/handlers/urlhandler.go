@@ -39,7 +39,7 @@ func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 		return errors.New("unsupported URL path")
 	}
 
-	r.Body = http.MaxBytesReader(w, r.Body, 2000)
+	//r.Body = http.MaxBytesReader(w, r.Body, 2000)
 	defer r.Body.Close()
 	urlBytes, err := io.ReadAll(r.Body)
 	if err != nil {
