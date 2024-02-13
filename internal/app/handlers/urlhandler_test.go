@@ -55,10 +55,10 @@ func TestURLHandlerRouter(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		resp, body := testRequest(t, ts, tt.method, tt.path, tt.requestBody, tt.contentType)
+		resp, respBody := testRequest(t, ts, tt.method, tt.path, tt.requestBody, tt.contentType)
 		assert.Equal(t, tt.expectedCode, resp.StatusCode)
 		if tt.expectedBody != "" {
-			assert.Equal(t, tt.expectedBody, body)
+			assert.Equal(t, tt.expectedBody, respBody)
 		}
 	}
 }
