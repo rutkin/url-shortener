@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testRequest(t *testing.T, ts *httptest.Server, method, path string, body string, contentType string) (*http.Response, string) {
+func testRequest(t *testing.T, ts *httptest.Server, method, path string, body string, contentType string) (int, string) {
 	var reader io.Reader
 	if body != "" {
 		reader = strings.NewReader(body)
@@ -26,12 +26,12 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 	}
 	resp, err := ts.Client().Do(req)
 	require.NoError(t, err)
-
 	defer resp.Body.Close()
+
 	respBody, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	return resp, string(respBody)
+	return resp.StatusCode, string(respBody)
 }
 
 func TestURLHandlerRouter(t *testing.T) {
@@ -55,10 +55,10 @@ func TestURLHandlerRouter(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		resp, get := testRequest(t, ts, tt.method, tt.path, tt.requestBody, tt.contentType)
-		assert.Equal(t, tt.expectedCode, resp.StatusCode)
+		status, body := testRequest(t, ts, tt.method, tt.path, tt.requestBody, tt.contentType)
+		assert.Equal(t, tt.expectedCode, status)
 		if tt.expectedBody != "" {
-			assert.Equal(t, tt.expectedBody, get)
+			assert.Equal(t, tt.expectedBody, body)
 		}
 	}
 }

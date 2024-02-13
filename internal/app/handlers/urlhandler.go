@@ -39,8 +39,8 @@ func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 		return errors.New("unsupported URL path")
 	}
 
-	//r.Body = http.MaxBytesReader(w, r.Body, 2000)
-	defer r.Body.Close()
+	r.Body = http.MaxBytesReader(w, r.Body, 2000)
+
 	urlBytes, err := io.ReadAll(r.Body)
 	if err != nil {
 		return errors.New("can not read body")
@@ -54,7 +54,10 @@ func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(h.address.JoinPath(id).String()))
+	_, err = w.Write([]byte(h.address.JoinPath(id).String()))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
