@@ -55,7 +55,7 @@ func Test_urlHandler_Main(t *testing.T) {
 				assert.Equal(t, tt.expectedBody, w.Body.String(), "Body is not equal to expected")
 			}
 			if tt.location != "" {
-				assert.Equal(t, tt.location, w.HeaderMap.Get("Location"))
+				assert.Equal(t, tt.location, w.Header().Get("Location"))
 			}
 		})
 	}
