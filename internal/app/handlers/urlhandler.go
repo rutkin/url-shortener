@@ -40,6 +40,7 @@ func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, 2000)
+	defer r.Body.Close()
 	urlBytes, err := io.ReadAll(r.Body)
 	if err != nil {
 		return errors.New("can not read body")
