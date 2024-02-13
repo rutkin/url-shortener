@@ -6,15 +6,23 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/rutkin/url-shortener/internal/app/config"
+	"github.com/rutkin/url-shortener/internal/app/repository"
 	"github.com/rutkin/url-shortener/internal/app/service"
 )
 
-type URLHandler interface {
-	Main(w http.ResponseWriter, r *http.Request) error
-}
+func NewURLHandlerRouter() http.Handler {
+	repository := repository.NewInMemoryRepository()
+	urlService := service.NewURLService(repository)
+	urlHandler := urlHandler{urlService, config.Address}
 
-func NewURLHandler(service service.Service, address url.URL) URLHandler {
-	return urlHandler{service, address}
+	r := chi.NewRouter()
+	r.MethodNotAllowedHandler()
+	r.Post("/", MakeHandler(urlHandler.CreateURL))
+	r.Get("/{id}", MakeHandler(urlHandler.GetURL))
+
+	return r
 }
 
 type urlHandler struct {
@@ -22,7 +30,7 @@ type urlHandler struct {
 	address url.URL
 }
 
-func (h urlHandler) createURL(w http.ResponseWriter, r *http.Request) error {
+func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 	if r.Header.Get("Content-Type") != "text/plain; charset=utf-8" {
 		return errors.New("unsupported Content-Type header, only text/plain; charset=utf-8 allowed")
 	}
@@ -49,8 +57,8 @@ func (h urlHandler) createURL(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h urlHandler) getURL(w http.ResponseWriter, r *http.Request) error {
-	id := r.URL.Path[1:]
+func (h urlHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
+	id := chi.URLParam(r, "id")
 
 	url, err := h.service.GetURL(id)
 	if err != nil {
@@ -59,16 +67,4 @@ func (h urlHandler) getURL(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Add("Location", url)
 	w.WriteHeader(http.StatusTemporaryRedirect)
 	return nil
-}
-
-func (h urlHandler) Main(w http.ResponseWriter, r *http.Request) error {
-	if r.Method == http.MethodPost {
-		return h.createURL(w, r)
-	}
-
-	if r.Method == http.MethodGet {
-		return h.getURL(w, r)
-	}
-
-	return errors.New("unsupported mmethod")
 }
