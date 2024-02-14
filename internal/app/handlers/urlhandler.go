@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"net/url"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/rutkin/url-shortener/internal/app/config"
@@ -15,7 +14,7 @@ import (
 func NewURLHandlerRouter() http.Handler {
 	repository := repository.NewInMemoryRepository()
 	urlService := service.NewURLService(repository)
-	urlHandler := urlHandler{urlService, config.ServerConfig.Address}
+	urlHandler := urlHandler{urlService, config.ServerConfig.Shortener.String()}
 
 	r := chi.NewRouter()
 	r.Post("/", MakeHandler(urlHandler.CreateURL))
@@ -26,7 +25,7 @@ func NewURLHandlerRouter() http.Handler {
 
 type urlHandler struct {
 	service service.Service
-	address url.URL
+	address string
 }
 
 func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
@@ -53,7 +52,7 @@ func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte(h.address.JoinPath(id).String()))
+	_, err = w.Write([]byte("http://" + h.address + "/" + id))
 	if err != nil {
 		return err
 	}

@@ -1,30 +1,43 @@
 package config
 
 import (
+	"errors"
 	"flag"
-	"net/url"
+	"strconv"
+	"strings"
 )
 
+type NetAddress struct {
+	Host string
+	Port int
+}
+
 type Config struct {
-	Address url.URL
+	Server    NetAddress
+	Shortener NetAddress
 }
 
-var ServerConfig = Config{url.URL{Scheme: "http", Host: "localhost:8080"}}
+var ServerConfig = Config{Server: NetAddress{"localhost", 8080}, Shortener: NetAddress{"localhost", 8080}}
 
-func (c Config) String() string {
-	return c.Address.String()
+func (a NetAddress) String() string {
+	return a.Host + ":" + strconv.Itoa(a.Port)
 }
 
-func (c *Config) Set(s string) error {
-	url, err := url.Parse(s)
+func (a *NetAddress) Set(s string) error {
+	hp := strings.Split(s, ":")
+	if len(hp) != 2 {
+		return errors.New("Need address in a form host:port")
+	}
+	port, err := strconv.Atoi(hp[1])
 	if err != nil {
 		return err
 	}
-	c.Address = *url
+	a.Host = hp[0]
+	a.Port = port
 	return nil
 }
 
 func init() {
-	flag.Var(&ServerConfig, "a", "http server address")
-	flag.Var(&ServerConfig, "b", "base server address")
+	flag.Var(&ServerConfig.Server, "a", "http server address")
+	flag.Var(&ServerConfig.Shortener, "b", "base server address")
 }

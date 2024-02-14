@@ -11,7 +11,7 @@ import (
 func StartServer() {
 	flag.Parse()
 	r := handlers.NewURLHandlerRouter()
-	err := http.ListenAndServe(config.ServerConfig.String(), r)
+	err := http.ListenAndServe(config.ServerConfig.Server.String(), r)
 	if err != nil {
 		panic(err)
 	}
