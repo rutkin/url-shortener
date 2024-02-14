@@ -14,7 +14,7 @@ import (
 func NewURLHandlerRouter() http.Handler {
 	repository := repository.NewInMemoryRepository()
 	urlService := service.NewURLService(repository)
-	urlHandler := urlHandler{urlService, config.ServerConfig.Shortener.String()}
+	urlHandler := urlHandler{urlService, config.ServerConfig.Base.String()}
 
 	r := chi.NewRouter()
 	r.Post("/", MakeHandler(urlHandler.CreateURL))

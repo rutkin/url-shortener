@@ -1,7 +1,6 @@
 package app
 
 import (
-	"flag"
 	"net/http"
 
 	"github.com/rutkin/url-shortener/internal/app/config"
@@ -9,7 +8,7 @@ import (
 )
 
 func StartServer() {
-	flag.Parse()
+	config.ServerConfig.ParseFlags()
 	r := handlers.NewURLHandlerRouter()
 	err := http.ListenAndServe(config.ServerConfig.Server.String(), r)
 	if err != nil {

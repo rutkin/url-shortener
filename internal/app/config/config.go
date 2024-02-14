@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"flag"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -14,11 +15,11 @@ type NetAddress struct {
 }
 
 type Config struct {
-	Server    NetAddress
-	Shortener NetAddress
+	Server NetAddress
+	Base   NetAddress
 }
 
-var ServerConfig = Config{Server: NetAddress{"", "localhost", 8080}, Shortener: NetAddress{"http", "localhost", 8080}}
+var ServerConfig = Config{Server: NetAddress{"", "localhost", 8080}, Base: NetAddress{"http", "localhost", 8080}}
 
 func (a NetAddress) String() string {
 	var res string
@@ -49,5 +50,17 @@ func (a *NetAddress) Set(s string) error {
 
 func init() {
 	flag.Var(&ServerConfig.Server, "a", "http server address")
-	flag.Var(&ServerConfig.Shortener, "b", "base server address")
+	flag.Var(&ServerConfig.Base, "b", "base server address")
+}
+
+func (c Config) ParseFlags() {
+	flag.Parse()
+
+	if serverAddress := os.Getenv("SERVER_ADDRESS"); serverAddress != "" {
+		c.Server.Set(serverAddress)
+	}
+
+	if baseAddress := os.Getenv("BASE_ADDRESS"); baseAddress != "" {
+		c.Server.Set(baseAddress)
+	}
 }
