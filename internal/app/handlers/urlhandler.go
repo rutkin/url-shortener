@@ -52,7 +52,7 @@ func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte("http://" + h.address + "/" + id))
+	_, err = w.Write([]byte(h.address + "/" + id))
 	if err != nil {
 		return err
 	}

@@ -8,8 +8,9 @@ import (
 )
 
 type NetAddress struct {
-	Host string
-	Port int
+	Scheme string
+	Host   string
+	Port   int
 }
 
 type Config struct {
@@ -17,16 +18,25 @@ type Config struct {
 	Shortener NetAddress
 }
 
-var ServerConfig = Config{Server: NetAddress{"localhost", 8080}, Shortener: NetAddress{"localhost", 8080}}
+var ServerConfig = Config{Server: NetAddress{"", "localhost", 8080}, Shortener: NetAddress{"http", "localhost", 8080}}
 
 func (a NetAddress) String() string {
-	return a.Host + ":" + strconv.Itoa(a.Port)
+	var res string
+	if a.Scheme != "" {
+		res += a.Scheme + "://"
+	}
+	return res + a.Host + ":" + strconv.Itoa(a.Port)
 }
 
 func (a *NetAddress) Set(s string) error {
-	hp := strings.Split(s, ":")
+	hp := strings.Split(s, "://")
+	if len(hp) > 1 {
+		a.Scheme = hp[0]
+		s = hp[1]
+	}
+	hp = strings.Split(s, ":")
 	if len(hp) != 2 {
-		return errors.New("Need address in a form host:port")
+		return errors.New("need address in a form host:port")
 	}
 	port, err := strconv.Atoi(hp[1])
 	if err != nil {
