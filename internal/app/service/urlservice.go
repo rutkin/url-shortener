@@ -20,15 +20,18 @@ func (s urlService) CreateURL(urlBytes []byte) (string, error) {
 	urlString := string(urlBytes)
 
 	_, err := url.ParseRequestURI(urlString)
+
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to parse url '%s': %w", urlString, err)
 	}
 
 	id := fmt.Sprintf("%X", crc32.ChecksumIEEE(urlBytes))
 	err = s.repository.CreateURL(id, urlString)
+
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create url '%s': %w", urlString, err)
 	}
+
 	return id, nil
 }
 

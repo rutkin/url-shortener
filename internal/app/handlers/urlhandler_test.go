@@ -21,11 +21,12 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 
 	req.Header.Set("Content-Type", contentType)
 
-	ts.Client().CheckRedirect = func(req *http.Request, via []*http.Request) error {
+	ts.Client().CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
 	resp, err := ts.Client().Do(req)
 	require.NoError(t, err)
+
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
@@ -57,6 +58,7 @@ func TestURLHandlerRouter(t *testing.T) {
 	for _, tt := range tests {
 		status, body := testRequest(t, ts, tt.method, tt.path, tt.requestBody, tt.contentType)
 		assert.Equal(t, tt.expectedCode, status)
+
 		if tt.expectedBody != "" {
 			assert.Equal(t, tt.expectedBody, body)
 		}

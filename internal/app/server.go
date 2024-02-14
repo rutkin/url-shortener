@@ -9,8 +9,10 @@ import (
 
 func StartServer() {
 	config.ServerConfig.ParseFlags()
+
 	r := handlers.NewURLHandlerRouter()
 	err := http.ListenAndServe(config.ServerConfig.Server.String(), r)
+
 	if err != nil {
 		panic(err)
 	}
