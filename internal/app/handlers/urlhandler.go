@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"flag"
 	"io"
 	"net/http"
 	"net/url"
@@ -14,14 +13,11 @@ import (
 )
 
 func NewURLHandlerRouter() http.Handler {
-	flag.Parse()
-
 	repository := repository.NewInMemoryRepository()
 	urlService := service.NewURLService(repository)
 	urlHandler := urlHandler{urlService, config.ServerConfig.Address}
 
 	r := chi.NewRouter()
-	r.MethodNotAllowedHandler()
 	r.Post("/", MakeHandler(urlHandler.CreateURL))
 	r.Get("/{id}", MakeHandler(urlHandler.GetURL))
 

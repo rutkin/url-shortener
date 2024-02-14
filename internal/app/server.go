@@ -1,17 +1,17 @@
 package app
 
 import (
+	"flag"
 	"net/http"
-	"net/url"
 
+	"github.com/rutkin/url-shortener/internal/app/config"
 	"github.com/rutkin/url-shortener/internal/app/handlers"
 )
 
-var Address = url.URL{Scheme: "http", Host: "localhost:8080"}
-
 func StartServer() {
+	flag.Parse()
 	r := handlers.NewURLHandlerRouter()
-	err := http.ListenAndServe(Address.Host, r)
+	err := http.ListenAndServe(config.ServerConfig.String(), r)
 	if err != nil {
 		panic(err)
 	}
