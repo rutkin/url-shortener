@@ -22,8 +22,8 @@ func NewURLHandlerRouter() http.Handler {
 	urlHandler := urlHandler{urlService, config.ServerConfig.Base.String()}
 
 	r := chi.NewRouter()
-	r.Post("/", MakeHandler(urlHandler.CreateURL))
-	r.Get("/{id}", MakeHandler(urlHandler.GetURL))
+	r.Post("/", NewHandler(urlHandler.CreateURL))
+	r.Get("/{id}", NewHandler(urlHandler.GetURL))
 
 	return r
 }
@@ -42,8 +42,9 @@ func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 		return errUnsupportedURLPath
 	}
 
-	r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
-	urlBytes, err := io.ReadAll(r.Body)
+	limitedBody := http.MaxBytesReader(w, r.Body, maxBodySize)
+	urlBytes, err := io.ReadAll(limitedBody)
+	defer limitedBody.Close()
 
 	if err != nil {
 		return fmt.Errorf("failed read request body: %w", err)

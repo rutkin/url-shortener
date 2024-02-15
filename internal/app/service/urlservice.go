@@ -8,15 +8,17 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/repository"
 )
 
-func NewURLService(repository repository.Repository) Service {
-	return urlService{repository}
+func NewURLService(repository repository.Repository) *urlService {
+	res := new(urlService)
+	res.repository = repository
+	return res
 }
 
 type urlService struct {
 	repository repository.Repository
 }
 
-func (s urlService) CreateURL(urlBytes []byte) (string, error) {
+func (s *urlService) CreateURL(urlBytes []byte) (string, error) {
 	urlString := string(urlBytes)
 
 	_, err := url.ParseRequestURI(urlString)
@@ -35,6 +37,6 @@ func (s urlService) CreateURL(urlBytes []byte) (string, error) {
 	return id, nil
 }
 
-func (s urlService) GetURL(id string) (string, error) {
+func (s *urlService) GetURL(id string) (string, error) {
 	return s.repository.GetURL(id)
 }

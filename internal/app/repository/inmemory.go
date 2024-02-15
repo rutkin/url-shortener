@@ -7,7 +7,7 @@ import (
 
 var errURLNotFound = errors.New("URL not found")
 
-func NewInMemoryRepository() Repository {
+func NewInMemoryRepository() *inMemoryRepository {
 	res := new(inMemoryRepository)
 	res.urls = make(map[string]string)
 

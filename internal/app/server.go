@@ -8,10 +8,14 @@ import (
 )
 
 func StartServer() {
-	config.ServerConfig.ParseFlags()
+	err := config.ServerConfig.ParseFlags()
+
+	if err != nil {
+		panic(err)
+	}
 
 	r := handlers.NewURLHandlerRouter()
-	err := http.ListenAndServe(config.ServerConfig.Server.String(), r)
+	err = http.ListenAndServe(config.ServerConfig.Server.String(), r)
 
 	if err != nil {
 		panic(err)

@@ -5,57 +5,24 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 )
 
-type NetAddress struct {
-	Scheme string
-	Host   string
-	Port   int
-}
+type NetAddress string
 
 type Config struct {
 	Server NetAddress
 	Base   NetAddress
 }
 
-var ServerConfig = Config{Server: NetAddress{"", "localhost", 8080}, Base: NetAddress{"http", "localhost", 8080}}
+var ServerConfig = Config{Server: "localhost:8080", Base: "http://localhost:8080"}
 var errInvalidAddress = errors.New("need address in a form host:port")
 
 func (a NetAddress) String() string {
-	var res string
-
-	if a.Scheme != "" {
-		res += a.Scheme + "://"
-	}
-
-	return res + a.Host + ":" + strconv.Itoa(a.Port)
+	return string(a)
 }
 
-func (a *NetAddress) Set(s string) error {
-	hp := strings.Split(s, "://")
-
-	if len(hp) == 2 {
-		a.Scheme = hp[0]
-		s = hp[1]
-	}
-
-	hp = strings.Split(s, ":")
-
-	if len(hp) != 2 {
-		return errInvalidAddress
-	}
-
-	port, err := strconv.Atoi(hp[1])
-
-	if err != nil {
-		return fmt.Errorf("failed to convert port '%s' to int: %w", hp[1], err)
-	}
-
-	a.Host = hp[0]
-	a.Port = port
-
+func (address *NetAddress) Set(s string) error {
+	*address = NetAddress(s)
 	return nil
 }
 
@@ -64,22 +31,22 @@ func init() {
 	flag.Var(&ServerConfig.Base, "b", "base server address")
 }
 
-func (c Config) ParseFlags() {
+func (c Config) ParseFlags() error {
 	flag.Parse()
 
-	if serverAddress := os.Getenv("SERVER_ADDRESS"); serverAddress != "" {
+	if serverAddress, ok := os.LookupEnv("SERVER_ADDRESS"); ok {
 		err := c.Server.Set(serverAddress)
 		if err != nil {
-			fmt.Printf("Failed to set server address '%s' in config", serverAddress)
-			fmt.Println(err)
+			return fmt.Errorf("Failed to set server address '%s' in config", serverAddress)
 		}
 	}
 
-	if baseAddress := os.Getenv("BASE_ADDRESS"); baseAddress != "" {
+	if baseAddress, ok := os.LookupEnv("BASE_ADDRESS"); ok {
 		err := c.Server.Set(baseAddress)
 		if err != nil {
-			fmt.Printf("Failed to set base address '%s' in config", baseAddress)
-			fmt.Println(err)
+			return fmt.Errorf("Failed to set base address '%s' in config", baseAddress)
 		}
 	}
+
+	return nil
 }
