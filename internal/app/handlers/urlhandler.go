@@ -38,10 +38,6 @@ func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 		return errUnsupportedContentType
 	}
 
-	if r.URL.Path != "/" {
-		return errUnsupportedURLPath
-	}
-
 	limitedBody := http.MaxBytesReader(w, r.Body, maxBodySize)
 	urlBytes, err := io.ReadAll(limitedBody)
 	defer limitedBody.Close()
