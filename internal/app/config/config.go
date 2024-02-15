@@ -21,8 +21,8 @@ func (a NetAddress) String() string {
 	return string(a)
 }
 
-func (address *NetAddress) Set(s string) error {
-	*address = NetAddress(s)
+func (a *NetAddress) Set(s string) error {
+	*a = NetAddress(s)
 	return nil
 }
 
@@ -37,14 +37,14 @@ func (c Config) ParseFlags() error {
 	if serverAddress, ok := os.LookupEnv("SERVER_ADDRESS"); ok {
 		err := c.Server.Set(serverAddress)
 		if err != nil {
-			return fmt.Errorf("Failed to set server address '%s' in config", serverAddress)
+			return fmt.Errorf("failed to set server address '%s' in config", serverAddress)
 		}
 	}
 
 	if baseAddress, ok := os.LookupEnv("BASE_ADDRESS"); ok {
 		err := c.Server.Set(baseAddress)
 		if err != nil {
-			return fmt.Errorf("Failed to set base address '%s' in config", baseAddress)
+			return fmt.Errorf("failed to set base address '%s' in config", baseAddress)
 		}
 	}
 
