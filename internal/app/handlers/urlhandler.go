@@ -13,7 +13,6 @@ import (
 )
 
 var errUnsupportedContentType = errors.New("unsupported Content-Type header, only text/plain; charset=utf-8 allowed")
-var errUnsupportedURLPath = errors.New("unsupported URL path")
 var maxBodySize = int64(2000)
 
 func NewURLHandlerRouter() http.Handler {
