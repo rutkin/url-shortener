@@ -9,11 +9,12 @@ import (
 type NetAddress string
 
 type Config struct {
-	Server NetAddress
-	Base   NetAddress
+	Server   NetAddress
+	Base     NetAddress
+	LogLevel string
 }
 
-var ServerConfig = Config{Server: "localhost:8080", Base: "http://localhost:8080"}
+var ServerConfig = Config{Server: "localhost:8080", Base: "http://localhost:8080", LogLevel: "info"}
 
 func (a NetAddress) String() string {
 	return string(a)
@@ -27,6 +28,7 @@ func (a *NetAddress) Set(s string) error {
 func ParseFlags() error {
 	flag.Var(&ServerConfig.Server, "a", "http server address")
 	flag.Var(&ServerConfig.Base, "b", "base server address")
+	flag.StringVar(&ServerConfig.LogLevel, "l", "info", "log level")
 	flag.Parse()
 
 	if serverAddress, ok := os.LookupEnv("SERVER_ADDRESS"); ok {

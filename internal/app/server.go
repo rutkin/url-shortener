@@ -6,6 +6,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/rutkin/url-shortener/internal/app/config"
 	"github.com/rutkin/url-shortener/internal/app/handlers"
+	"github.com/rutkin/url-shortener/internal/app/logger"
+	"go.uber.org/zap"
 )
 
 func newRootRouter() http.Handler {
@@ -23,7 +25,15 @@ func StartServer() {
 		panic(err)
 	}
 
-	err = http.ListenAndServe(config.ServerConfig.Server.String(), newRootRouter())
+	err = logger.Initialize(config.ServerConfig.LogLevel)
+
+	if err != nil {
+		panic(err)
+	}
+
+	logger.Log.Info("Running server", zap.String("address", config.ServerConfig.Server.String()))
+
+	err = http.ListenAndServe(config.ServerConfig.Server.String(), logger.WithLogging(newRootRouter()))
 
 	if err != nil {
 		panic(err)
