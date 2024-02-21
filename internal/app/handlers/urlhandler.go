@@ -8,23 +8,14 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/rutkin/url-shortener/internal/app/config"
-	"github.com/rutkin/url-shortener/internal/app/repository"
 	"github.com/rutkin/url-shortener/internal/app/service"
 )
 
 var errUnsupportedContentType = errors.New("unsupported Content-Type header, only text/plain; charset=utf-8 allowed")
 var maxBodySize = int64(2000)
 
-func NewURLHandlerRouter() http.Handler {
-	repository := repository.NewInMemoryRepository()
-	urlService := service.NewURLService(repository)
-	urlHandler := urlHandler{urlService, config.ServerConfig.Base.String()}
-
-	r := chi.NewRouter()
-	r.Post("/", NewHandler(urlHandler.CreateURL))
-	r.Get("/{id}", NewHandler(urlHandler.GetURL))
-
-	return r
+func NewURLHandler() *urlHandler {
+	return &urlHandler{service.NewURLService(), config.ServerConfig.Base.String()}
 }
 
 type urlHandler struct {

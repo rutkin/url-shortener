@@ -8,10 +8,8 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/repository"
 )
 
-func NewURLService(repository repository.Repository) *urlService {
-	res := new(urlService)
-	res.repository = repository
-	return res
+func NewURLService() *urlService {
+	return &urlService{repository.NewInMemoryRepository()}
 }
 
 type urlService struct {

@@ -1,4 +1,4 @@
-package handlers
+package app
 
 import (
 	"io"
@@ -35,8 +35,8 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 	return resp.StatusCode, string(respBody)
 }
 
-func TestURLHandlerRouter(t *testing.T) {
-	ts := httptest.NewServer(NewURLHandlerRouter())
+func TestRootRouter(t *testing.T) {
+	ts := httptest.NewServer(newRootRouter())
 	defer ts.Close()
 
 	tests := []struct {

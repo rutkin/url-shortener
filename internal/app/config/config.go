@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -15,7 +14,6 @@ type Config struct {
 }
 
 var ServerConfig = Config{Server: "localhost:8080", Base: "http://localhost:8080"}
-var errInvalidAddress = errors.New("need address in a form host:port")
 
 func (a NetAddress) String() string {
 	return string(a)
@@ -26,12 +24,9 @@ func (a *NetAddress) Set(s string) error {
 	return nil
 }
 
-func init() {
+func (c Config) ParseFlags() error {
 	flag.Var(&ServerConfig.Server, "a", "http server address")
 	flag.Var(&ServerConfig.Base, "b", "base server address")
-}
-
-func (c Config) ParseFlags() error {
 	flag.Parse()
 
 	if serverAddress, ok := os.LookupEnv("SERVER_ADDRESS"); ok {
