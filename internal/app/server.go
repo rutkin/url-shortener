@@ -17,7 +17,7 @@ func newRootRouter() http.Handler {
 }
 
 func StartServer() {
-	err := config.ServerConfig.ParseFlags()
+	err := config.ParseFlags()
 
 	if err != nil {
 		panic(err)
