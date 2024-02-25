@@ -27,8 +27,8 @@ type urlHandler struct {
 	address string
 }
 
-func (h urlHandler) createResponseAddress(shortUrl string) string {
-	return h.address + "/" + shortUrl
+func (h urlHandler) createResponseAddress(shortURL string) string {
+	return h.address + "/" + shortURL
 }
 
 func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
