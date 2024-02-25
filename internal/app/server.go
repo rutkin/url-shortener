@@ -15,6 +15,7 @@ func newRootRouter() http.Handler {
 	r := chi.NewRouter()
 	r.Post("/", handlers.NewHandler(urlHandler.CreateURL))
 	r.Get("/{id}", handlers.NewHandler(urlHandler.GetURL))
+	r.Post("/api/shorten", handlers.NewHandler(urlHandler.CreateShorten))
 	return r
 }
 
