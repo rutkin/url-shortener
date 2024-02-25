@@ -104,7 +104,7 @@ func TestRootRouter(t *testing.T) {
 			contentType:  "application/json",
 			expectedCode: http.StatusCreated,
 			requestBody:  `{"url": "https://testurl.com/blablabla"}`,
-			expectedBody: `{"result":"9718264F"}
+			expectedBody: `{"result":"http://localhost:8080/9718264F"}
 `,
 		},
 	}

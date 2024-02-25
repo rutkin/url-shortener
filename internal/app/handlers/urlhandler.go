@@ -27,6 +27,10 @@ type urlHandler struct {
 	address string
 }
 
+func (h urlHandler) createResponseAddress(shortUrl string) string {
+	return h.address + "/" + shortUrl
+}
+
 func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 	if r.Header.Get("Content-Type") != "text/plain; charset=utf-8" {
 		return errUnsupportedContentType
@@ -49,7 +53,7 @@ func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte(h.address + "/" + id))
+	_, err = w.Write([]byte(h.createResponseAddress(id)))
 
 	if err != nil {
 		return fmt.Errorf("failed to write response body: %w", err)
@@ -81,18 +85,18 @@ func (h urlHandler) CreateShorten(w http.ResponseWriter, r *http.Request) error 
 		return fmt.Errorf("failed to decode body: %w", err)
 	}
 
-	if len(req.Url) == 0 {
+	if len(req.URL) == 0 {
 		return errUnsupportedBody
 	}
 
-	id, err := h.service.CreateURL([]byte(req.Url))
+	id, err := h.service.CreateURL([]byte(req.URL))
 
 	if err != nil {
 		return fmt.Errorf("failed create url from request body: %w", err)
 	}
 
 	resp := models.Response{
-		Result: id,
+		Result: h.createResponseAddress(id),
 	}
 
 	w.Header().Set("Content-Type", "application/json")
