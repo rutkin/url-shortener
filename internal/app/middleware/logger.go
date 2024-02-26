@@ -1,9 +1,10 @@
-package logger
+package middleware
 
 import (
 	"net/http"
 	"time"
 
+	"github.com/rutkin/url-shortener/internal/app/logger"
 	"go.uber.org/zap"
 )
 
@@ -46,7 +47,7 @@ func WithLogging(h http.Handler) http.Handler {
 
 		duration := time.Since(start)
 
-		Log.Info("logger middleware",
+		logger.Log.Info("logger middleware",
 			zap.String("uri", r.RequestURI),
 			zap.String("method", r.Method),
 			zap.Int("status", responseData.status),

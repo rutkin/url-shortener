@@ -7,12 +7,14 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/config"
 	"github.com/rutkin/url-shortener/internal/app/handlers"
 	"github.com/rutkin/url-shortener/internal/app/logger"
+	"github.com/rutkin/url-shortener/internal/app/middleware"
 	"go.uber.org/zap"
 )
 
 func newRootRouter() http.Handler {
 	urlHandler := handlers.NewURLHandler()
 	r := chi.NewRouter()
+	r.Use(middleware.WithLogging)
 	r.Post("/", handlers.NewHandler(urlHandler.CreateURL))
 	r.Get("/{id}", handlers.NewHandler(urlHandler.GetURL))
 	r.Post("/api/shorten", handlers.NewHandler(urlHandler.CreateShorten))
@@ -34,7 +36,7 @@ func StartServer() {
 
 	logger.Log.Info("Running server", zap.String("address", config.ServerConfig.Server.String()))
 
-	err = http.ListenAndServe(config.ServerConfig.Server.String(), logger.WithLogging(newRootRouter()))
+	err = http.ListenAndServe(config.ServerConfig.Server.String(), newRootRouter())
 
 	if err != nil {
 		panic(err)
