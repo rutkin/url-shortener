@@ -32,10 +32,6 @@ func (h urlHandler) createResponseAddress(shortURL string) string {
 }
 
 func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
-	if r.Header.Get("Content-Type") != "text/plain; charset=utf-8" {
-		return errUnsupportedContentType
-	}
-
 	limitedBody := http.MaxBytesReader(w, r.Body, maxBodySize)
 	urlBytes, err := io.ReadAll(limitedBody)
 	defer limitedBody.Close()
