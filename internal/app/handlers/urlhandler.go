@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/logger"
 	"github.com/rutkin/url-shortener/internal/app/models"
 	"github.com/rutkin/url-shortener/internal/app/service"
+	"go.uber.org/zap"
 )
 
 var errUnsupportedBody = errors.New("unsupported body")
@@ -20,6 +20,7 @@ var maxBodySize = int64(2000)
 func NewURLHandler() (*URLHandler, error) {
 	s, err := service.NewURLService()
 	if err != nil {
+		logger.Log.Error("failed to create url service", zap.String("error", err.Error()))
 		return nil, err
 	}
 	return &URLHandler{s, config.ServerConfig.Base.String()}, nil
@@ -34,24 +35,22 @@ func (h URLHandler) createResponseAddress(shortURL string) string {
 	return h.address + "/" + shortURL
 }
 
-func (h URLHandler) Close() error {
-	return h.service.Close()
-}
-
 func (h URLHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 	limitedBody := http.MaxBytesReader(w, r.Body, maxBodySize)
 	urlBytes, err := io.ReadAll(limitedBody)
 	defer limitedBody.Close()
 
 	if err != nil {
-		return fmt.Errorf("failed read request body: %w", err)
+		logger.Log.Error("failed to read request body", zap.String("error", err.Error()))
+		return err
 	}
 
 	var id string
 	id, err = h.service.CreateURL(urlBytes)
 
 	if err != nil {
-		return fmt.Errorf("failed create url from request body: %w", err)
+		logger.Log.Error("failed create url from request body", zap.String("error", err.Error()))
+		return err
 	}
 
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
@@ -59,7 +58,8 @@ func (h URLHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 	_, err = w.Write([]byte(h.createResponseAddress(id)))
 
 	if err != nil {
-		return fmt.Errorf("failed to write response body: %w", err)
+		logger.Log.Error("failed to write response body", zap.String("error", err.Error()))
+		return err
 	}
 
 	return nil
@@ -71,7 +71,8 @@ func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	url, err := h.service.GetURL(id)
 
 	if err != nil {
-		return fmt.Errorf("failed to get url by id: %w", err)
+		logger.Log.Error("failed to get url by id", zap.String("error", err.Error()))
+		return err
 	}
 
 	w.Header().Add("Location", url)
@@ -81,21 +82,22 @@ func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h URLHandler) CreateShorten(w http.ResponseWriter, r *http.Request) error {
-	logger.Log.Info("create shorten")
-
 	var req models.Request
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return fmt.Errorf("failed to decode body: %w", err)
+		logger.Log.Error("failed to decode body", zap.String("error", err.Error()))
+		return err
 	}
 
 	if len(req.URL) == 0 {
+		logger.Log.Error("unsupported empty body in CreateShorten request")
 		return errUnsupportedBody
 	}
 
 	id, err := h.service.CreateURL([]byte(req.URL))
 
 	if err != nil {
-		return fmt.Errorf("failed create url from request body: %w", err)
+		logger.Log.Error("failed create url from request body", zap.String("error", err.Error()))
+		return err
 	}
 
 	resp := models.Response{
@@ -106,7 +108,8 @@ func (h URLHandler) CreateShorten(w http.ResponseWriter, r *http.Request) error 
 	w.WriteHeader(http.StatusCreated)
 	enc := json.NewEncoder(w)
 	if err := enc.Encode(resp); err != nil {
-		return fmt.Errorf("failed encode body: %w", err)
+		logger.Log.Error("failed encode body", zap.String("error", err.Error()))
+		return err
 	}
 
 	return nil

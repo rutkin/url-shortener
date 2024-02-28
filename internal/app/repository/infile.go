@@ -61,16 +61,3 @@ func (r *inFileRepository) CreateURL(id string, url string) error {
 
 	return json.NewEncoder(f).Encode(r.urls)
 }
-
-func (r *inFileRepository) Close() error {
-	f, err := os.OpenFile(r.filename, os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		logger.Log.Error("Failed to open file repository",
-			zap.String("filename", r.filename),
-			zap.String("error", err.Error()))
-		return err
-	}
-	defer f.Close()
-
-	return json.NewEncoder(f).Encode(r.urls)
-}

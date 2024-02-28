@@ -14,6 +14,7 @@ import (
 func NewServer() (*Server, error) {
 	handler, err := handlers.NewURLHandler()
 	if err != nil {
+		logger.Log.Error("failed to create url handler", zap.String("error", err.Error()))
 		return nil, err
 	}
 	return &Server{handler}, nil
@@ -23,18 +24,14 @@ type Server struct {
 	urlHandler *handlers.URLHandler
 }
 
-func (s Server) Start() {
+func (s Server) Start() error {
 	logger.Log.Info("Running server", zap.String("address", config.ServerConfig.Server.String()))
 
 	err := http.ListenAndServe(config.ServerConfig.Server.String(), s.newRootRouter())
 
-	if err != nil {
-		panic(err)
-	}
-}
+	logger.Log.Info("Server stopped")
 
-func (s Server) Close() error {
-	return s.urlHandler.Close()
+	return err
 }
 
 func (s Server) newRootRouter() http.Handler {
