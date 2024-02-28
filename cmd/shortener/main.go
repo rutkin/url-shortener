@@ -5,5 +5,10 @@ import (
 )
 
 func main() {
-	app.StartServer()
+	server, err := app.NewServer()
+	if err != nil {
+		panic(err)
+	}
+	defer server.Close()
+	server.Start()
 }

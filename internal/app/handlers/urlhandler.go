@@ -14,24 +14,31 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/service"
 )
 
-var errUnsupportedContentType = errors.New("unsupported Content-Type header, only text/plain; charset=utf-8 allowed")
 var errUnsupportedBody = errors.New("unsupported body")
 var maxBodySize = int64(2000)
 
-func NewURLHandler() *urlHandler {
-	return &urlHandler{service.NewURLService(), config.ServerConfig.Base.String()}
+func NewURLHandler() (*UrlHandler, error) {
+	s, err := service.NewURLService()
+	if err != nil {
+		return nil, err
+	}
+	return &UrlHandler{s, config.ServerConfig.Base.String()}, nil
 }
 
-type urlHandler struct {
+type UrlHandler struct {
 	service service.Service
 	address string
 }
 
-func (h urlHandler) createResponseAddress(shortURL string) string {
+func (h UrlHandler) createResponseAddress(shortURL string) string {
 	return h.address + "/" + shortURL
 }
 
-func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
+func (h UrlHandler) Close() error {
+	return h.service.Close()
+}
+
+func (h UrlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 	limitedBody := http.MaxBytesReader(w, r.Body, maxBodySize)
 	urlBytes, err := io.ReadAll(limitedBody)
 	defer limitedBody.Close()
@@ -58,7 +65,7 @@ func (h urlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h urlHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
+func (h UrlHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
 	url, err := h.service.GetURL(id)
@@ -73,7 +80,7 @@ func (h urlHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h urlHandler) CreateShorten(w http.ResponseWriter, r *http.Request) error {
+func (h UrlHandler) CreateShorten(w http.ResponseWriter, r *http.Request) error {
 	logger.Log.Info("create shorten")
 
 	var req models.Request

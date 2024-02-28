@@ -9,12 +9,13 @@ import (
 type NetAddress string
 
 type Config struct {
-	Server   NetAddress
-	Base     NetAddress
-	LogLevel string
+	Server          NetAddress
+	Base            NetAddress
+	LogLevel        string
+	FileStoragePath string
 }
 
-var ServerConfig = Config{Server: "localhost:8080", Base: "http://localhost:8080", LogLevel: "info"}
+var ServerConfig = Config{Server: "localhost:8080", Base: "http://localhost:8080", LogLevel: "info", FileStoragePath: "/tmp/short-url-db.json"}
 
 func (a NetAddress) String() string {
 	return string(a)
@@ -29,6 +30,7 @@ func ParseFlags() error {
 	flag.Var(&ServerConfig.Server, "a", "http server address")
 	flag.Var(&ServerConfig.Base, "b", "base server address")
 	flag.StringVar(&ServerConfig.LogLevel, "l", "info", "log level")
+	flag.StringVar(&ServerConfig.FileStoragePath, "f", "/tmp/short-url-db.json", "file storage path")
 	flag.Parse()
 
 	if serverAddress, ok := os.LookupEnv("SERVER_ADDRESS"); ok {
@@ -43,6 +45,10 @@ func ParseFlags() error {
 		if err != nil {
 			return fmt.Errorf("failed to set base address '%s' in config", baseAddress)
 		}
+	}
+
+	if fileStoragePath, ok := os.LookupEnv("FILE_STORAGE_PATH"); ok {
+		ServerConfig.FileStoragePath = fileStoragePath
 	}
 
 	return nil
