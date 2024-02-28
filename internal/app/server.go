@@ -20,25 +20,13 @@ func NewServer() (*Server, error) {
 }
 
 type Server struct {
-	urlHandler *handlers.UrlHandler
+	urlHandler *handlers.URLHandler
 }
 
 func (s Server) Start() {
-	err := config.ParseFlags()
-
-	if err != nil {
-		panic(err)
-	}
-
-	err = logger.Initialize(config.ServerConfig.LogLevel)
-
-	if err != nil {
-		panic(err)
-	}
-
 	logger.Log.Info("Running server", zap.String("address", config.ServerConfig.Server.String()))
 
-	err = http.ListenAndServe(config.ServerConfig.Server.String(), s.newRootRouter())
+	err := http.ListenAndServe(config.ServerConfig.Server.String(), s.newRootRouter())
 
 	if err != nil {
 		panic(err)

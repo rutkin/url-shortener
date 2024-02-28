@@ -17,28 +17,28 @@ import (
 var errUnsupportedBody = errors.New("unsupported body")
 var maxBodySize = int64(2000)
 
-func NewURLHandler() (*UrlHandler, error) {
+func NewURLHandler() (*URLHandler, error) {
 	s, err := service.NewURLService()
 	if err != nil {
 		return nil, err
 	}
-	return &UrlHandler{s, config.ServerConfig.Base.String()}, nil
+	return &URLHandler{s, config.ServerConfig.Base.String()}, nil
 }
 
-type UrlHandler struct {
+type URLHandler struct {
 	service service.Service
 	address string
 }
 
-func (h UrlHandler) createResponseAddress(shortURL string) string {
+func (h URLHandler) createResponseAddress(shortURL string) string {
 	return h.address + "/" + shortURL
 }
 
-func (h UrlHandler) Close() error {
+func (h URLHandler) Close() error {
 	return h.service.Close()
 }
 
-func (h UrlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
+func (h URLHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 	limitedBody := http.MaxBytesReader(w, r.Body, maxBodySize)
 	urlBytes, err := io.ReadAll(limitedBody)
 	defer limitedBody.Close()
@@ -65,7 +65,7 @@ func (h UrlHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h UrlHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
+func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
 	url, err := h.service.GetURL(id)
@@ -80,7 +80,7 @@ func (h UrlHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h UrlHandler) CreateShorten(w http.ResponseWriter, r *http.Request) error {
+func (h URLHandler) CreateShorten(w http.ResponseWriter, r *http.Request) error {
 	logger.Log.Info("create shorten")
 
 	var req models.Request
