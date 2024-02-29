@@ -35,6 +35,10 @@ func (h URLHandler) createResponseAddress(shortURL string) string {
 	return h.address + "/" + shortURL
 }
 
+func (h URLHandler) Close() error {
+	return h.service.Close()
+}
+
 func (h URLHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
 	limitedBody := http.MaxBytesReader(w, r.Body, maxBodySize)
 	urlBytes, err := io.ReadAll(limitedBody)

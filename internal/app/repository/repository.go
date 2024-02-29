@@ -7,6 +7,7 @@ import (
 type Repository interface {
 	CreateURL(id string, url string) error
 	GetURL(id string) (string, error)
+	Close() error
 }
 
 func NewRepository() (Repository, error) {

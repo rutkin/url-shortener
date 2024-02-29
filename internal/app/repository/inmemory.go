@@ -38,3 +38,7 @@ func (r *inMemoryRepository) GetURL(id string) (string, error) {
 
 	return url, nil
 }
+
+func (r *inMemoryRepository) Close() error {
+	return nil
+}

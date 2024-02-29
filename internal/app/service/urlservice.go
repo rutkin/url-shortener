@@ -50,3 +50,7 @@ func (s *urlService) CreateURL(urlBytes []byte) (string, error) {
 func (s *urlService) GetURL(id string) (string, error) {
 	return s.repository.GetURL(id)
 }
+
+func (s *urlService) Close() error {
+	return s.repository.Close()
+}

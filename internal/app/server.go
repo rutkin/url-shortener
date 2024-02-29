@@ -34,6 +34,10 @@ func (s Server) Start() error {
 	return err
 }
 
+func (s Server) Close() error {
+	return s.urlHandler.Close()
+}
+
 func (s Server) newRootRouter() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.WithLogging)

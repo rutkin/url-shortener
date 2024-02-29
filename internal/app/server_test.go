@@ -40,6 +40,7 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 func TestRootRouter(t *testing.T) {
 	server, err := NewServer()
 	require.NoError(t, err)
+	defer server.Close()
 
 	ts := httptest.NewServer(server.newRootRouter())
 	defer ts.Close()
@@ -129,6 +130,7 @@ func TestRootRouter(t *testing.T) {
 func TestCompression(t *testing.T) {
 	server, err := NewServer()
 	require.NoError(t, err)
+	defer server.Close()
 
 	ts := httptest.NewServer(server.newRootRouter())
 	defer ts.Close()
