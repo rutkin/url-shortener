@@ -30,7 +30,6 @@ func WithCompress(h http.Handler) http.Handler {
 
 		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 			gz := gzip.NewWriter(w)
-			defer gz.Close()
 			ow = gzipWriter{ResponseWriter: w, Writer: gz}
 		}
 
