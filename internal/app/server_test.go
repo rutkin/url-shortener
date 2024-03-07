@@ -22,6 +22,7 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("Accept-Encoding", "identity")
 
 	ts.Client().CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
 		return http.ErrUseLastResponse

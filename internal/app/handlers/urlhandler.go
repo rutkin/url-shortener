@@ -39,7 +39,7 @@ func (h URLHandler) Close() error {
 	return h.service.Close()
 }
 
-func (h URLHandler) CreateURL(w http.ResponseWriter, r *http.Request) error {
+func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request) error {
 	limitedBody := http.MaxBytesReader(w, r.Body, maxBodySize)
 	urlBytes, err := io.ReadAll(limitedBody)
 	defer limitedBody.Close()
@@ -85,7 +85,7 @@ func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h URLHandler) CreateShorten(w http.ResponseWriter, r *http.Request) error {
+func (h URLHandler) CreateShortenWithJsonBody(w http.ResponseWriter, r *http.Request) error {
 	var req models.Request
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Log.Error("failed to decode body", zap.String("error", err.Error()))

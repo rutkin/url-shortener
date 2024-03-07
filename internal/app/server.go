@@ -42,8 +42,8 @@ func (s Server) newRootRouter() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.WithLogging)
 	r.Use(middleware.WithCompress)
-	r.Post("/", handlers.NewHandler(s.urlHandler.CreateURL))
+	r.Post("/", handlers.NewHandler(s.urlHandler.CreateURLWithTextBody))
 	r.Get("/{id}", handlers.NewHandler(s.urlHandler.GetURL))
-	r.Post("/api/shorten", handlers.NewHandler(s.urlHandler.CreateShorten))
+	r.Post("/api/shorten", handlers.NewHandler(s.urlHandler.CreateShortenWithJsonBody))
 	return r
 }

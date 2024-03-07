@@ -16,7 +16,12 @@ type gzipWriter struct {
 }
 
 func (w gzipWriter) Write(b []byte) (int, error) {
-	return w.Writer.Write(b)
+	contentType := w.Header().Get("Content-Type")
+	if contentType == "application/json" || contentType == "text/html" {
+		w.Header().Set("Content-Encoding", "gzip")
+		return w.Writer.Write(b)
+	}
+	return w.ResponseWriter.Write(b)
 }
 
 func WithCompress(h http.Handler) http.Handler {
@@ -26,7 +31,6 @@ func WithCompress(h http.Handler) http.Handler {
 		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 			gz := gzip.NewWriter(w)
 			defer gz.Close()
-			w.Header().Set("Content-Encoding", "gzip")
 			ow = gzipWriter{ResponseWriter: w, Writer: gz}
 		}
 
@@ -40,7 +44,7 @@ func WithCompress(h http.Handler) http.Handler {
 			defer gr.Close()
 		}
 
-		h.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: ow}, r)
+		h.ServeHTTP(ow, r)
 	}
 	return http.HandlerFunc(compFn)
 }
