@@ -85,7 +85,7 @@ func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h URLHandler) CreateShortenWithJsonBody(w http.ResponseWriter, r *http.Request) error {
+func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Request) error {
 	var req models.Request
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Log.Error("failed to decode body", zap.String("error", err.Error()))
