@@ -37,12 +37,14 @@ func WithCompress(h http.Handler) http.Handler {
 		ow := w
 
 		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+			logger.Log.Info("Using gzip writer for request")
 			gz := &gzipWriter{ResponseWriter: w, Writer: gzip.NewWriter(w)}
 			defer gz.Close()
 			ow = gz
 		}
 
 		if strings.Contains(r.Header.Get("Content-Encoding"), "gzip") {
+			logger.Log.Info("Using gzip reader for request")
 			gr, err := gzip.NewReader(r.Body)
 			if err != nil {
 				logger.Log.Error("failed to create gzip reader", zap.String("error", err.Error()))
