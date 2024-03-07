@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"compress/gzip"
-	"io"
 	"net/http"
 	"strings"
 
@@ -12,16 +11,25 @@ import (
 
 type gzipWriter struct {
 	http.ResponseWriter
-	Writer io.Writer
+	Writer         *gzip.Writer
+	useCompression bool
 }
 
-func (w gzipWriter) Write(b []byte) (int, error) {
+func (w *gzipWriter) Write(b []byte) (int, error) {
 	contentType := w.Header().Get("Content-Type")
 	if contentType == "application/json" || contentType == "text/html" {
 		w.Header().Set("Content-Encoding", "gzip")
+		w.useCompression = true
 		return w.Writer.Write(b)
 	}
 	return w.ResponseWriter.Write(b)
+}
+
+func (w *gzipWriter) Close() error {
+	if w.useCompression {
+		return w.Writer.Close()
+	}
+	return nil
 }
 
 func WithCompress(h http.Handler) http.Handler {
@@ -29,8 +37,9 @@ func WithCompress(h http.Handler) http.Handler {
 		ow := w
 
 		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
-			gz := gzip.NewWriter(w)
-			ow = gzipWriter{ResponseWriter: w, Writer: gz}
+			gz := &gzipWriter{ResponseWriter: w, Writer: gzip.NewWriter(w)}
+			defer gz.Close()
+			ow = gz
 		}
 
 		if strings.Contains(r.Header.Get("Content-Encoding"), "gzip") {
