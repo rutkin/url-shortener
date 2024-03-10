@@ -54,6 +54,9 @@ func WithLogging(h http.Handler) http.Handler {
 			zap.Duration("duration", duration),
 			zap.Int("size", responseData.size),
 		)
+		logger.Log.Info("logger middlerware headers",
+			zap.String("Accept-Encoding", r.Header.Get("Accept-Encoding")),
+		)
 	}
 	return http.HandlerFunc(logFn)
 }
