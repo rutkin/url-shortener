@@ -4,6 +4,7 @@ import (
 	"compress/gzip"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/rutkin/url-shortener/internal/app/logger"
 	"go.uber.org/zap"
@@ -18,7 +19,9 @@ type gzipWriter struct {
 func (w *gzipWriter) Write(b []byte) (int, error) {
 	contentType := w.Header().Get("Content-Type")
 	if contentType == "application/json" || contentType == "text/html" {
-		w.Header().Set("Content-Encoding", "gzip")
+		sync.OnceFunc(func() {
+			w.Header().Set("Content-Encoding", "gzip")
+		})()
 		w.useCompression = true
 		return w.Writer.Write(b)
 	}
