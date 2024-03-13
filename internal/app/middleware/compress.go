@@ -4,7 +4,6 @@ import (
 	"compress/gzip"
 	"net/http"
 	"strings"
-	"sync"
 
 	"github.com/rutkin/url-shortener/internal/app/logger"
 	"go.uber.org/zap"
@@ -17,15 +16,19 @@ type gzipWriter struct {
 }
 
 func (w *gzipWriter) Write(b []byte) (int, error) {
-	contentType := w.Header().Get("Content-Type")
-	if contentType == "application/json" || contentType == "text/html" {
-		sync.OnceFunc(func() {
-			w.Header().Set("Content-Encoding", "gzip")
-		})()
-		w.useCompression = true
+	if w.useCompression {
 		return w.Writer.Write(b)
 	}
 	return w.ResponseWriter.Write(b)
+}
+
+func (w *gzipWriter) WriteHeader(statusCode int) {
+	contentType := w.Header().Get("Content-Type")
+	if contentType == "application/json" || contentType == "text/html" {
+		w.useCompression = true
+		w.ResponseWriter.Header().Add("Content-Encoding", "gzip")
+	}
+	w.ResponseWriter.WriteHeader(statusCode)
 }
 
 func (w *gzipWriter) Close() error {
@@ -39,8 +42,7 @@ func WithCompress(h http.Handler) http.Handler {
 	compFn := func(w http.ResponseWriter, r *http.Request) {
 		ow := w
 
-		// temporary hack with content-encoding to pass tests for increment 7
-		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") && strings.Contains(r.Header.Get("Content-Encoding"), "gzip") {
+		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 			logger.Log.Info("Using gzip writer for request")
 			gz := &gzipWriter{ResponseWriter: w, Writer: gzip.NewWriter(w)}
 			defer gz.Close()
