@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"io"
@@ -12,6 +13,8 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/models"
 	"github.com/rutkin/url-shortener/internal/app/service"
 	"go.uber.org/zap"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 var errUnsupportedBody = errors.New("unsupported body")
@@ -117,4 +120,22 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 	}
 
 	return nil
+}
+
+func (h URLHandler) PingDB(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("pgx", config.ServerConfig.DatabaseDSN)
+	if err != nil {
+		logger.Log.Error("failed create url from request body", zap.String("error", err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = db.Ping()
+	if err != nil {
+		logger.Log.Error("failed to ping db", zap.String("error", err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
