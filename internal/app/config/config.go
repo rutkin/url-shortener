@@ -32,7 +32,7 @@ func ParseFlags() error {
 	flag.Var(&ServerConfig.Base, "b", "base server address")
 	flag.StringVar(&ServerConfig.LogLevel, "l", "info", "log level")
 	flag.StringVar(&ServerConfig.FileStoragePath, "f", "/tmp/short-url-db.json", "file storage path")
-	flag.StringVar(&ServerConfig.FileStoragePath, "d", "", "database dsn")
+	flag.StringVar(&ServerConfig.DatabaseDSN, "d", "", "database dsn")
 	flag.Parse()
 
 	if serverAddress, ok := os.LookupEnv("SERVER_ADDRESS"); ok {
