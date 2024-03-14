@@ -8,7 +8,7 @@ import (
 )
 
 func NewInDatabaseRepository(db *sql.DB) (*inDatabaseRepository, error) {
-	_, err := db.Exec("CREATE TABLE IF NOT EXIST shortener (shortURL VARCHAR (50) UNIQUE NOT NULL, LongURL VARCHAR (1000) NOT NULL);")
+	_, err := db.Exec("CREATE TABLE IF NOT EXIST shortener (shortURL VARCHAR (50) UNIQUE NOT NULL, LongURL VARCHAR (1000) NOT NULL)")
 	if err != nil {
 		logger.Log.Error("Failed to create table", zap.String("error", err.Error()))
 		return nil, err
