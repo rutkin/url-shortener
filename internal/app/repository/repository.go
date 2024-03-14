@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+
 	"github.com/rutkin/url-shortener/internal/app/config"
 )
 
@@ -10,7 +12,11 @@ type Repository interface {
 	Close() error
 }
 
-func NewRepository() (Repository, error) {
+func NewRepository(db *sql.DB) (Repository, error) {
+	if db != nil {
+		return NewInDatabaseRepository(db)
+	}
+
 	if config.ServerConfig.FileStoragePath == "" {
 		return NewInMemoryRepository(), nil
 	}

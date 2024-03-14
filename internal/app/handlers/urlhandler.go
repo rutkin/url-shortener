@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"io"
@@ -123,14 +122,8 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 }
 
 func (h URLHandler) PingDB(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("pgx", config.ServerConfig.DatabaseDSN)
-	if err != nil {
-		logger.Log.Error("failed create url from request body", zap.String("error", err.Error()))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	err := h.service.PingDB()
 
-	err = db.Ping()
 	if err != nil {
 		logger.Log.Error("failed to ping db", zap.String("error", err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
