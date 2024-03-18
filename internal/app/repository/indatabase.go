@@ -44,7 +44,7 @@ func (r *inDatabaseRepository) CreateURL(id string, url string) error {
 func (r *inDatabaseRepository) GetURL(id string) (string, error) {
 	row := r.db.QueryRow("SELECT LongURL FROM shortener WHERE shortURL=$1;", id)
 	var longURL string
-	err := row.Scan(longURL)
+	err := row.Scan(&longURL)
 	if err != nil {
 		logger.Log.Error("Failed to select", zap.String("error", err.Error()))
 		return "", err
