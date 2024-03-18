@@ -136,8 +136,12 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 		return err
 	}
 
+	err = h.writeURLBodyInJson(w, id)
+	if err != nil {
+		return err
+	}
 	w.WriteHeader(http.StatusCreated)
-	return h.writeURLBodyInJson(w, id)
+	return nil
 }
 
 func (h URLHandler) PingDB(w http.ResponseWriter, r *http.Request) {
