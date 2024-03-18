@@ -36,6 +36,29 @@ func (h URLHandler) createResponseAddress(shortURL string) string {
 	return h.address + "/" + shortURL
 }
 
+func (h URLHandler) writeURLBodyInText(w http.ResponseWriter, shortURL string) error {
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	_, err := w.Write([]byte(h.createResponseAddress(shortURL)))
+	if err != nil {
+		logger.Log.Error("failed to write response body", zap.String("error", err.Error()))
+	}
+	return err
+}
+
+func (h URLHandler) writeURLBodyInJson(w http.ResponseWriter, shortURL string) error {
+	resp := models.Response{
+		Result: h.createResponseAddress(shortURL),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(resp); err != nil {
+		logger.Log.Error("failed encode body", zap.String("error", err.Error()))
+		return err
+	}
+	return nil
+}
+
 func (h URLHandler) Close() error {
 	return h.service.Close()
 }
@@ -53,21 +76,21 @@ func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request
 	var id string
 	id, err = h.service.CreateURL(urlBytes)
 
+	if errors.Is(err, repository.ErrConflict) {
+		writeErr := h.writeURLBodyInText(w, id)
+		if writeErr != nil {
+			return writeErr
+		}
+		return err
+	}
+
 	if err != nil {
 		logger.Log.Error("failed create url from request body", zap.String("error", err.Error()))
 		return err
 	}
 
-	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte(h.createResponseAddress(id)))
-
-	if err != nil {
-		logger.Log.Error("failed to write response body", zap.String("error", err.Error()))
-		return err
-	}
-
-	return nil
+	return h.writeURLBodyInText(w, id)
 }
 
 func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
@@ -100,36 +123,21 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 
 	id, err := h.service.CreateURL([]byte(req.URL))
 
-	if err != nil {
-		logger.Log.Error("failed create url from request body", zap.String("error", err.Error()))
-		if errors.Is(err, repository.ErrConflict) {
-			resp := models.Response{
-				Result: h.createResponseAddress(id),
-			}
-
-			w.Header().Set("Content-Type", "application/json")
-			enc := json.NewEncoder(w)
-			if err := enc.Encode(resp); err != nil {
-				logger.Log.Error("failed encode body", zap.String("error", err.Error()))
-				return err
-			}
+	if errors.Is(err, repository.ErrConflict) {
+		writeErr := h.writeURLBodyInJson(w, id)
+		if writeErr != nil {
+			return writeErr
 		}
 		return err
 	}
 
-	resp := models.Response{
-		Result: h.createResponseAddress(id),
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	enc := json.NewEncoder(w)
-	if err := enc.Encode(resp); err != nil {
-		logger.Log.Error("failed encode body", zap.String("error", err.Error()))
+	if err != nil {
+		logger.Log.Error("failed create url from request body", zap.String("error", err.Error()))
 		return err
 	}
 
-	return nil
+	w.WriteHeader(http.StatusCreated)
+	return h.writeURLBodyInJson(w, id)
 }
 
 func (h URLHandler) PingDB(w http.ResponseWriter, r *http.Request) {

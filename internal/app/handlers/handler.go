@@ -11,7 +11,7 @@ func NewHandler(fn func(http.ResponseWriter, *http.Request) error) http.HandlerF
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := fn(w, r)
 		if errors.Is(err, repository.ErrConflict) {
-			http.Error(w, err.Error(), http.StatusConflict)
+			w.WriteHeader(http.StatusConflict)
 			return
 		}
 		if err != nil {
