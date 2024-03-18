@@ -3,9 +3,6 @@ package repository
 import (
 	"errors"
 	"sync"
-
-	"github.com/rutkin/url-shortener/internal/app/logger"
-	"go.uber.org/zap"
 )
 
 var errURLNotFound = errors.New("URL not found")
@@ -23,13 +20,11 @@ type inMemoryRepository struct {
 }
 
 func (r *inMemoryRepository) CreateURLS(urls []URLRecord) error {
+	r.mu.Lock()
 	for _, url := range urls {
-		err := r.CreateURL(url.ID, url.URL)
-		if err != nil {
-			logger.Log.Error("Failed to create url", zap.String("error", err.Error()))
-			return err
-		}
+		r.urls[url.ID] = url.URL
 	}
+	r.mu.Unlock()
 	return nil
 }
 
