@@ -10,6 +10,7 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/config"
 	"github.com/rutkin/url-shortener/internal/app/logger"
 	"github.com/rutkin/url-shortener/internal/app/models"
+	"github.com/rutkin/url-shortener/internal/app/repository"
 	"github.com/rutkin/url-shortener/internal/app/service"
 	"go.uber.org/zap"
 )
@@ -101,6 +102,18 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 
 	if err != nil {
 		logger.Log.Error("failed create url from request body", zap.String("error", err.Error()))
+		if errors.Is(err, repository.ErrConflict) {
+			resp := models.Response{
+				Result: h.createResponseAddress(id),
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			enc := json.NewEncoder(w)
+			if err := enc.Encode(resp); err != nil {
+				logger.Log.Error("failed encode body", zap.String("error", err.Error()))
+				return err
+			}
+		}
 		return err
 	}
 
