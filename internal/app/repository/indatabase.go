@@ -21,6 +21,17 @@ type inDatabaseRepository struct {
 	db *sql.DB
 }
 
+func (r *inDatabaseRepository) CreateURLS(urls []URLRecord) error {
+	for _, url := range urls {
+		err := r.CreateURL(url.ID, url.URL)
+		if err != nil {
+			logger.Log.Error("Failed to create url", zap.String("error", err.Error()))
+			return err
+		}
+	}
+	return nil
+}
+
 func (r *inDatabaseRepository) CreateURL(id string, url string) error {
 	_, err := r.db.Exec("INSERT INTO shortener (shortURL, LongURL) Values ($1, $2);", id, url)
 	if err != nil {

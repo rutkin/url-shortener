@@ -12,8 +12,6 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/models"
 	"github.com/rutkin/url-shortener/internal/app/service"
 	"go.uber.org/zap"
-
-	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 var errUnsupportedBody = errors.New("unsupported body")
@@ -131,4 +129,43 @@ func (h URLHandler) PingDB(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h URLHandler) CreateBatch(w http.ResponseWriter, r *http.Request) error {
+	var req models.BatchRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Log.Error("failed to decode body", zap.String("error", err.Error()))
+		return err
+	}
+
+	if len(req) == 0 {
+		logger.Log.Error("unsupported empty body in CreateBatch request")
+		return errUnsupportedBody
+	}
+
+	var originalURLS []string
+	for _, batchRecord := range req {
+		originalURLS = append(originalURLS, batchRecord.OriginalURL)
+	}
+
+	shortURLS, err := h.service.CreateURLS(originalURLS)
+	if err != nil {
+		logger.Log.Error("failed create urls", zap.String("error", err.Error()))
+		return err
+	}
+
+	var response models.BatchResponse
+	for i := 0; i < len(req); i++ {
+		response = append(response, models.BatchResponseRecord{CorrelationID: req[i].CorrelationID, ShortURL: shortURLS[i]})
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(response); err != nil {
+		logger.Log.Error("failed encode body", zap.String("error", err.Error()))
+		return err
+	}
+
+	return nil
 }

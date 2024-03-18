@@ -6,7 +6,13 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/config"
 )
 
+type URLRecord struct {
+	ID  string
+	URL string
+}
+
 type Repository interface {
+	CreateURLS(urls []URLRecord) error
 	CreateURL(id string, url string) error
 	GetURL(id string) (string, error)
 	Close() error

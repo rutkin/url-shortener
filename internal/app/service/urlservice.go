@@ -36,6 +36,27 @@ type urlService struct {
 	repository repository.Repository
 }
 
+func (s *urlService) createShortURL(url []byte) string {
+	return fmt.Sprintf("%X", crc32.ChecksumIEEE(url))
+}
+
+func (s *urlService) CreateURLS(urls []string) ([]string, error) {
+	var repositoryURLS []repository.URLRecord
+	var shortURLS []string
+	for _, url := range urls {
+		shortURL := s.createShortURL([]byte(url))
+		shortURLS = append(shortURLS, shortURL)
+		repositoryURLS = append(repositoryURLS, repository.URLRecord{ID: shortURL, URL: url})
+	}
+
+	err := s.repository.CreateURLS(repositoryURLS)
+	if err != nil {
+		logger.Log.Error("failed to create urls", zap.String("error", err.Error()))
+		return nil, err
+	}
+	return shortURLS, nil
+}
+
 func (s *urlService) CreateURL(urlBytes []byte) (string, error) {
 	urlString := string(urlBytes)
 
