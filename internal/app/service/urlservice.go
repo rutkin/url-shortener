@@ -2,6 +2,7 @@ package service
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"hash/crc32"
 	"net/url"
@@ -72,6 +73,9 @@ func (s *urlService) CreateURL(urlBytes []byte) (string, error) {
 	id := fmt.Sprintf("%X", crc32.ChecksumIEEE(urlBytes))
 	err = s.repository.CreateURL(id, urlString)
 
+	if errors.Is(err, repository.ErrConflict) {
+		return id, err
+	}
 	if err != nil {
 		logger.Log.Error("failed to create url",
 			zap.String("url", urlString),
