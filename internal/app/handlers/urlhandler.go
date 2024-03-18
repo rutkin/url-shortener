@@ -37,7 +37,6 @@ func (h URLHandler) createResponseAddress(shortURL string) string {
 }
 
 func (h URLHandler) writeURLBodyInText(w http.ResponseWriter, shortURL string) error {
-	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	_, err := w.Write([]byte(h.createResponseAddress(shortURL)))
 	if err != nil {
 		logger.Log.Error("failed to write response body", zap.String("error", err.Error()))
@@ -50,7 +49,6 @@ func (h URLHandler) writeURLBodyInJson(w http.ResponseWriter, shortURL string) e
 		Result: h.createResponseAddress(shortURL),
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
 	if err := enc.Encode(resp); err != nil {
 		logger.Log.Error("failed encode body", zap.String("error", err.Error()))
@@ -77,6 +75,7 @@ func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request
 	id, err = h.service.CreateURL(urlBytes)
 
 	if errors.Is(err, repository.ErrConflict) {
+		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 		writeErr := h.writeURLBodyInText(w, id)
 		if writeErr != nil {
 			return writeErr
@@ -89,6 +88,7 @@ func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request
 		return err
 	}
 
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
 	return h.writeURLBodyInText(w, id)
 }
@@ -124,6 +124,7 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 	id, err := h.service.CreateURL([]byte(req.URL))
 
 	if errors.Is(err, repository.ErrConflict) {
+		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 		writeErr := h.writeURLBodyInJson(w, id)
 		if writeErr != nil {
 			return writeErr
@@ -136,12 +137,9 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 		return err
 	}
 
-	err = h.writeURLBodyInJson(w, id)
-	if err != nil {
-		return err
-	}
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	return nil
+	return h.writeURLBodyInJson(w, id)
 }
 
 func (h URLHandler) PingDB(w http.ResponseWriter, r *http.Request) {
