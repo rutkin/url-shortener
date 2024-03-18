@@ -22,14 +22,21 @@ type inDatabaseRepository struct {
 }
 
 func (r *inDatabaseRepository) CreateURLS(urls []URLRecord) error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		logger.Log.Error("Failed to create transaction", zap.String("error", err.Error()))
+		return err
+	}
+
 	for _, url := range urls {
-		err := r.CreateURL(url.ID, url.URL)
+		_, err = tx.Exec("INSERT INTO shortener (shortURL, LongURL) Values ($1, $2);", url.ID, url.URL)
 		if err != nil {
 			logger.Log.Error("Failed to create url", zap.String("error", err.Error()))
+			tx.Rollback()
 			return err
 		}
 	}
-	return nil
+	return tx.Commit()
 }
 
 func (r *inDatabaseRepository) CreateURL(id string, url string) error {
