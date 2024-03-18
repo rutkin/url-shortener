@@ -58,7 +58,7 @@ func (r *inDatabaseRepository) CreateURLS(urls []URLRecord) error {
 }
 
 func (r *inDatabaseRepository) CreateURL(id string, url string) error {
-	_, err := r.db.Exec("INSERT INTO shortener (shortURL, LongURL) Values ($1, $2) ON CONFLICT returning shortURL", id, url)
+	_, err := r.db.Exec("INSERT INTO shortener (shortURL, LongURL) Values ($1, $2)", id, url)
 
 	if err != nil {
 		logger.Log.Error("Failed to insert in table", zap.String("error", err.Error()))
