@@ -156,7 +156,7 @@ func (h URLHandler) CreateBatch(w http.ResponseWriter, r *http.Request) error {
 
 	var response models.BatchResponse
 	for i := 0; i < len(req); i++ {
-		response = append(response, models.BatchResponseRecord{CorrelationID: req[i].CorrelationID, ShortURL: shortURLS[i]})
+		response = append(response, models.BatchResponseRecord{CorrelationID: req[i].CorrelationID, ShortURL: h.createResponseAddress(shortURLS[i])})
 	}
 
 	w.Header().Set("Content-Type", "application/json")
