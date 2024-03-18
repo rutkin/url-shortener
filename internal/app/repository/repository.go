@@ -2,9 +2,12 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/rutkin/url-shortener/internal/app/config"
 )
+
+var ErrConflict = errors.New("repository conflict")
 
 type URLRecord struct {
 	ID  string
