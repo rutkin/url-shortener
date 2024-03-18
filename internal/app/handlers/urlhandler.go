@@ -124,7 +124,7 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 	id, err := h.service.CreateURL([]byte(req.URL))
 
 	if errors.Is(err, repository.ErrConflict) {
-		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+		w.Header().Set("Content-Type", "application/json")
 		writeErr := h.writeURLBodyInJson(w, id)
 		if writeErr != nil {
 			return writeErr
@@ -137,7 +137,7 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 		return err
 	}
 
-	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	return h.writeURLBodyInJson(w, id)
 }
