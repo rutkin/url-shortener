@@ -10,6 +10,7 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/config"
 	"github.com/rutkin/url-shortener/internal/app/logger"
 	"github.com/rutkin/url-shortener/internal/app/models"
+	"github.com/rutkin/url-shortener/internal/app/repository"
 	"github.com/rutkin/url-shortener/internal/app/service"
 	"go.uber.org/zap"
 )
@@ -35,6 +36,33 @@ func (h URLHandler) createResponseAddress(shortURL string) string {
 	return h.address + "/" + shortURL
 }
 
+func (h URLHandler) writeURLBodyInText(w http.ResponseWriter, shortURL string, statusCode int) error {
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(statusCode)
+
+	_, err := w.Write([]byte(h.createResponseAddress(shortURL)))
+	if err != nil {
+		logger.Log.Error("failed to write response body", zap.String("error", err.Error()))
+	}
+	return err
+}
+
+func (h URLHandler) writeURLBodyInJSON(w http.ResponseWriter, shortURL string, statusCode int) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	resp := models.Response{
+		Result: h.createResponseAddress(shortURL),
+	}
+
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(resp); err != nil {
+		logger.Log.Error("failed encode body", zap.String("error", err.Error()))
+		return err
+	}
+	return nil
+}
+
 func (h URLHandler) Close() error {
 	return h.service.Close()
 }
@@ -52,21 +80,20 @@ func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request
 	var id string
 	id, err = h.service.CreateURL(urlBytes)
 
+	if errors.Is(err, repository.ErrConflict) {
+		writeErr := h.writeURLBodyInText(w, id, http.StatusConflict)
+		if writeErr != nil {
+			return writeErr
+		}
+		return err
+	}
+
 	if err != nil {
 		logger.Log.Error("failed create url from request body", zap.String("error", err.Error()))
 		return err
 	}
 
-	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte(h.createResponseAddress(id)))
-
-	if err != nil {
-		logger.Log.Error("failed to write response body", zap.String("error", err.Error()))
-		return err
-	}
-
-	return nil
+	return h.writeURLBodyInText(w, id, http.StatusCreated)
 }
 
 func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
@@ -99,19 +126,66 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 
 	id, err := h.service.CreateURL([]byte(req.URL))
 
+	if errors.Is(err, repository.ErrConflict) {
+		writeErr := h.writeURLBodyInJSON(w, id, http.StatusConflict)
+		if writeErr != nil {
+			return writeErr
+		}
+		return err
+	}
+
 	if err != nil {
 		logger.Log.Error("failed create url from request body", zap.String("error", err.Error()))
 		return err
 	}
 
-	resp := models.Response{
-		Result: h.createResponseAddress(id),
+	return h.writeURLBodyInJSON(w, id, http.StatusCreated)
+}
+
+func (h URLHandler) PingDB(w http.ResponseWriter, r *http.Request) {
+	err := h.service.PingDB()
+
+	if err != nil {
+		logger.Log.Error("failed to ping db", zap.String("error", err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h URLHandler) CreateBatch(w http.ResponseWriter, r *http.Request) error {
+	var req models.BatchRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Log.Error("failed to decode body", zap.String("error", err.Error()))
+		return err
+	}
+
+	if len(req) == 0 {
+		logger.Log.Error("unsupported empty body in CreateBatch request")
+		return errUnsupportedBody
+	}
+
+	var originalURLS []string
+	for _, batchRecord := range req {
+		originalURLS = append(originalURLS, batchRecord.OriginalURL)
+	}
+
+	shortURLS, err := h.service.CreateURLS(originalURLS)
+	if err != nil {
+		logger.Log.Error("failed create urls", zap.String("error", err.Error()))
+		return err
+	}
+
+	var response models.BatchResponse
+	for i := 0; i < len(req); i++ {
+		response = append(response, models.BatchResponseRecord{CorrelationID: req[i].CorrelationID, ShortURL: h.createResponseAddress(shortURLS[i])})
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	enc := json.NewEncoder(w)
-	if err := enc.Encode(resp); err != nil {
+	if err := enc.Encode(response); err != nil {
 		logger.Log.Error("failed encode body", zap.String("error", err.Error()))
 		return err
 	}

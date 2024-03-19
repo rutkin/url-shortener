@@ -11,28 +11,31 @@ import (
 
 type gzipWriter struct {
 	http.ResponseWriter
-	Writer         *gzip.Writer
-	useCompression bool
+	Writer *gzip.Writer
+}
+
+func (w *gzipWriter) useCompression() bool {
+	contentType := w.Header().Get("Content-Type")
+	return contentType == "application/json" || contentType == "text/html"
 }
 
 func (w *gzipWriter) Write(b []byte) (int, error) {
-	if w.useCompression {
+	if w.useCompression() {
+		w.ResponseWriter.Header().Add("Content-Encoding", "gzip")
 		return w.Writer.Write(b)
 	}
 	return w.ResponseWriter.Write(b)
 }
 
 func (w *gzipWriter) WriteHeader(statusCode int) {
-	contentType := w.Header().Get("Content-Type")
-	if contentType == "application/json" || contentType == "text/html" {
-		w.useCompression = true
+	if w.useCompression() {
 		w.ResponseWriter.Header().Add("Content-Encoding", "gzip")
 	}
 	w.ResponseWriter.WriteHeader(statusCode)
 }
 
 func (w *gzipWriter) Close() error {
-	if w.useCompression {
+	if w.useCompression() {
 		return w.Writer.Close()
 	}
 	return nil

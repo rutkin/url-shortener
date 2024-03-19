@@ -13,6 +13,7 @@ type Config struct {
 	Base            NetAddress
 	LogLevel        string
 	FileStoragePath string
+	DatabaseDSN     string
 }
 
 var ServerConfig = Config{Server: "localhost:8080", Base: "http://localhost:8080", LogLevel: "info", FileStoragePath: "/tmp/short-url-db.json"}
@@ -31,6 +32,7 @@ func ParseFlags() error {
 	flag.Var(&ServerConfig.Base, "b", "base server address")
 	flag.StringVar(&ServerConfig.LogLevel, "l", "info", "log level")
 	flag.StringVar(&ServerConfig.FileStoragePath, "f", "/tmp/short-url-db.json", "file storage path")
+	flag.StringVar(&ServerConfig.DatabaseDSN, "d", "", "database dsn")
 	flag.Parse()
 
 	if serverAddress, ok := os.LookupEnv("SERVER_ADDRESS"); ok {
@@ -49,6 +51,10 @@ func ParseFlags() error {
 
 	if fileStoragePath, ok := os.LookupEnv("FILE_STORAGE_PATH"); ok {
 		ServerConfig.FileStoragePath = fileStoragePath
+	}
+
+	if databaseDSN, ok := os.LookupEnv("DATABASE_DSN"); ok {
+		ServerConfig.DatabaseDSN = databaseDSN
 	}
 
 	return nil

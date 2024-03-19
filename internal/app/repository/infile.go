@@ -49,6 +49,17 @@ type inFileRepository struct {
 	encoder *json.Encoder
 }
 
+func (r *inFileRepository) CreateURLS(urls []URLRecord) error {
+	for _, url := range urls {
+		err := r.CreateURL(url.ID, url.URL)
+		if err != nil {
+			logger.Log.Error("Failed to create url", zap.String("error", err.Error()))
+			return err
+		}
+	}
+	return nil
+}
+
 func (r *inFileRepository) CreateURL(id string, url string) error {
 	err := r.inMemoryRepository.CreateURL(id, url)
 	if err != nil {
