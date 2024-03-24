@@ -86,6 +86,7 @@ func WithUserID(h http.Handler) http.Handler {
 			logger.Log.Error("failed to set user id", zap.String("error", err.Error()))
 			w.WriteHeader(http.StatusInternalServerError)
 		}
+		logger.Log.Info("with userID", zap.String("userID", userID))
 		ctx := context.WithValue(r.Context(), service.UserIDKey, userID)
 		h.ServeHTTP(w, r.WithContext(ctx))
 	}
