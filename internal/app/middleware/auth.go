@@ -77,10 +77,8 @@ func SetUserIDToCookies(w http.ResponseWriter, userID string) error {
 func WithUserID(h http.Handler) http.Handler {
 	authFn := func(w http.ResponseWriter, r *http.Request) {
 		userID, err := GetUserIDFromCookie(r)
-		logger.Log.Info("WithUserID1", zap.String("userID", userID))
 		if err != nil {
-			userID := fmt.Sprint(rand.Int31())
-			logger.Log.Info("WithUserID2", zap.String("userID", userID))
+			userID = fmt.Sprint(rand.Int31())
 			err = SetUserIDToCookies(w, userID)
 		}
 
@@ -88,7 +86,7 @@ func WithUserID(h http.Handler) http.Handler {
 			logger.Log.Error("failed to set user id", zap.String("error", err.Error()))
 			w.WriteHeader(http.StatusInternalServerError)
 		}
-		logger.Log.Info("WithUserID3", zap.String("userID", userID))
+
 		ctx := context.WithValue(r.Context(), service.UserIDKey, userID)
 		h.ServeHTTP(w, r.WithContext(ctx))
 	}
