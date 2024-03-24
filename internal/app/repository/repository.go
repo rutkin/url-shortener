@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/rutkin/url-shortener/internal/app/config"
+	"github.com/rutkin/url-shortener/internal/app/models"
 )
 
 var ErrConflict = errors.New("repository conflict")
@@ -15,9 +16,10 @@ type URLRecord struct {
 }
 
 type Repository interface {
-	CreateURLS(urls []URLRecord) error
-	CreateURL(id string, url string) error
+	CreateURLS(urls []URLRecord, userID string) error
+	CreateURL(id string, url string, userID string) error
 	GetURL(id string) (string, error)
+	GetURLS(userID string) ([]models.URLRecord, error)
 	Close() error
 }
 

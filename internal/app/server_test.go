@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -45,6 +46,9 @@ func TestRootRouter(t *testing.T) {
 
 	ts := httptest.NewServer(server.newRootRouter())
 	defer ts.Close()
+
+	jar, _ := cookiejar.New(nil)
+	ts.Client().Jar = jar
 
 	tests := []struct {
 		name         string
