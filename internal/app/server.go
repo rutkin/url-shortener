@@ -42,10 +42,11 @@ func (s Server) newRootRouter() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.WithLogging)
 	r.Use(middleware.WithCompress)
-	r.Post("/", handlers.NewHandler(s.urlHandler.CreateURLWithTextBody))
-	r.Get("/{id}", handlers.NewHandler(s.urlHandler.GetURL))
-	r.Post("/api/shorten", handlers.NewHandler(s.urlHandler.CreateShortenWithJSONBody))
-	r.Post("/api/shorten/batch", handlers.NewHandler(s.urlHandler.CreateBatch))
-	r.Get("/ping", s.urlHandler.PingDB)
+	userIDRouter := r.With(middleware.WithUserID)
+	userIDRouter.Post("/", handlers.NewHandler(s.urlHandler.CreateURLWithTextBody))
+	userIDRouter.Get("/{id}", handlers.NewHandler(s.urlHandler.GetURL))
+	userIDRouter.Post("/api/shorten", handlers.NewHandler(s.urlHandler.CreateShortenWithJSONBody))
+	userIDRouter.Post("/api/shorten/batch", handlers.NewHandler(s.urlHandler.CreateBatch))
+	userIDRouter.Get("/ping", s.urlHandler.PingDB)
 	return r
 }
