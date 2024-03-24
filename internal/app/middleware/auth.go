@@ -87,6 +87,7 @@ func WithUserID(h http.Handler) http.Handler {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 
+		logger.Log.Info("WithUserID", zap.String("userID", userID))
 		ctx := context.WithValue(r.Context(), service.UserIDKey, userID)
 		h.ServeHTTP(w, r.WithContext(ctx))
 	}
