@@ -133,6 +133,9 @@ func (h URLHandler) GetURLS(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	urls, err := h.service.GetURLS(userID.(string))
+	for k, v := range urls {
+		urls[k].ShortURL = h.createResponseAddress(v.ShortURL)
+	}
 
 	if err != nil {
 		logger.Log.Error("failed to get urls by user id", zap.String("error", err.Error()))
