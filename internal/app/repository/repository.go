@@ -15,9 +15,10 @@ type URLRecord struct {
 }
 
 type Repository interface {
-	CreateURLS(urls []URLRecord) error
-	CreateURL(id string, url string) error
-	GetURL(id string) (string, error)
+	CreateURLS(urls []URLRecord, userID string) error
+	CreateURL(id string, url string, userID string) error
+	GetURL(id string, userID string) (string, error)
+	GetURLS(userID string) ([]string, error)
 	Close() error
 }
 

@@ -39,7 +39,7 @@ type inDatabaseRepository struct {
 	db *sql.DB
 }
 
-func (r *inDatabaseRepository) CreateURLS(urls []URLRecord) error {
+func (r *inDatabaseRepository) CreateURLS(urls []URLRecord, userID string) error {
 	tx, err := r.db.Begin()
 	if err != nil {
 		logger.Log.Error("Failed to create transaction", zap.String("error", err.Error()))
@@ -57,7 +57,7 @@ func (r *inDatabaseRepository) CreateURLS(urls []URLRecord) error {
 	return tx.Commit()
 }
 
-func (r *inDatabaseRepository) CreateURL(id string, url string) error {
+func (r *inDatabaseRepository) CreateURL(id string, url string, userID string) error {
 	_, err := r.db.Exec("INSERT INTO shortener (shortURL, LongURL) Values ($1, $2)", id, url)
 
 	if err != nil {
@@ -72,7 +72,7 @@ func (r *inDatabaseRepository) CreateURL(id string, url string) error {
 	return nil
 }
 
-func (r *inDatabaseRepository) GetURL(id string) (string, error) {
+func (r *inDatabaseRepository) GetURL(id string, userID string) (string, error) {
 	row := r.db.QueryRow("SELECT LongURL FROM shortener WHERE shortURL=$1;", id)
 	var longURL string
 	err := row.Scan(&longURL)
@@ -81,6 +81,10 @@ func (r *inDatabaseRepository) GetURL(id string) (string, error) {
 		return "", err
 	}
 	return longURL, nil
+}
+
+func (r *inDatabaseRepository) GetURLS(userID string) ([]string, error) {
+	return nil, nil
 }
 
 func (r *inDatabaseRepository) Close() error {

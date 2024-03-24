@@ -16,6 +16,7 @@ import (
 )
 
 var errUnsupportedBody = errors.New("unsupported body")
+var errInvalidContext = errors.New("invalid context")
 var maxBodySize = int64(2000)
 
 func NewURLHandler() (*URLHandler, error) {
@@ -77,8 +78,14 @@ func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request
 		return err
 	}
 
+	userID := r.Context().Value(service.UserIDKey)
+	if userID == nil {
+		logger.Log.Error("userID value does not exists in context")
+		return errInvalidContext
+	}
+
 	var id string
-	id, err = h.service.CreateURL(urlBytes)
+	id, err = h.service.CreateURL(urlBytes, userID.(string))
 
 	if errors.Is(err, repository.ErrConflict) {
 		writeErr := h.writeURLBodyInText(w, id, http.StatusConflict)
@@ -99,7 +106,13 @@ func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request
 func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
-	url, err := h.service.GetURL(id)
+	userID := r.Context().Value(service.UserIDKey)
+	if userID == nil {
+		logger.Log.Error("userID value does not exists in context")
+		return errInvalidContext
+	}
+
+	url, err := h.service.GetURL(id, userID.(string))
 
 	if err != nil {
 		logger.Log.Error("failed to get url by id", zap.String("error", err.Error()))
@@ -124,7 +137,13 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 		return errUnsupportedBody
 	}
 
-	id, err := h.service.CreateURL([]byte(req.URL))
+	userID := r.Context().Value(service.UserIDKey)
+	if userID == nil {
+		logger.Log.Error("userID value does not exists in context")
+		return errInvalidContext
+	}
+
+	id, err := h.service.CreateURL([]byte(req.URL), userID.(string))
 
 	if errors.Is(err, repository.ErrConflict) {
 		writeErr := h.writeURLBodyInJSON(w, id, http.StatusConflict)
@@ -171,7 +190,13 @@ func (h URLHandler) CreateBatch(w http.ResponseWriter, r *http.Request) error {
 		originalURLS = append(originalURLS, batchRecord.OriginalURL)
 	}
 
-	shortURLS, err := h.service.CreateURLS(originalURLS)
+	userID := r.Context().Value(service.UserIDKey)
+	if userID == nil {
+		logger.Log.Error("userID value does not exists in context")
+		return errInvalidContext
+	}
+
+	shortURLS, err := h.service.CreateURLS(originalURLS, userID.(string))
 	if err != nil {
 		logger.Log.Error("failed create urls", zap.String("error", err.Error()))
 		return err

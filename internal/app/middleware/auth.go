@@ -11,14 +11,11 @@ import (
 	"net/http"
 
 	"github.com/rutkin/url-shortener/internal/app/logger"
+	"github.com/rutkin/url-shortener/internal/app/service"
 	"go.uber.org/zap"
 )
 
 const password = "password"
-
-type contextKey string
-
-const userIDKey contextKey = "userID"
 
 func GetUserIDFromCookie(r *http.Request) (string, error) {
 	userIDCookie, err := r.Cookie("userID")
@@ -89,7 +86,7 @@ func WithUserID(h http.Handler) http.Handler {
 			logger.Log.Error("failed to set user id", zap.String("error", err.Error()))
 			w.WriteHeader(http.StatusInternalServerError)
 		}
-		ctx := context.WithValue(r.Context(), userIDKey, userID)
+		ctx := context.WithValue(r.Context(), service.UserIDKey, userID)
 		h.ServeHTTP(w, r.WithContext(ctx))
 	}
 
@@ -103,7 +100,7 @@ func WithAuth(h http.Handler) http.Handler {
 			w.WriteHeader(http.StatusUnauthorized)
 		}
 
-		ctx := context.WithValue(r.Context(), userIDKey, userID)
+		ctx := context.WithValue(r.Context(), service.UserIDKey, userID)
 		h.ServeHTTP(w, r.WithContext(ctx))
 	}
 
