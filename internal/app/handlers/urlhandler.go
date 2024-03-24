@@ -112,7 +112,7 @@ func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 		return errInvalidContext
 	}
 
-	url, err := h.service.GetURL(id, userID.(string))
+	url, err := h.service.GetURL(id)
 
 	if err != nil {
 		logger.Log.Error("failed to get url by id", zap.String("error", err.Error()))

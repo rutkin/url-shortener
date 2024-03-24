@@ -44,7 +44,7 @@ func (r *inMemoryRepository) CreateURL(id string, url string, userID string) err
 	return nil
 }
 
-func (r *inMemoryRepository) GetURL(id string, userID string) (string, error) {
+func (r *inMemoryRepository) GetURL(id string) (string, error) {
 	var url string
 	r.mu.RLock()
 	for _, userURL := range r.urls {

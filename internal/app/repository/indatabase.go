@@ -73,7 +73,7 @@ func (r *inDatabaseRepository) CreateURL(id string, url string, userID string) e
 	return nil
 }
 
-func (r *inDatabaseRepository) GetURL(id string, userID string) (string, error) {
+func (r *inDatabaseRepository) GetURL(id string) (string, error) {
 	row := r.db.QueryRow("SELECT LongURL FROM shortener WHERE shortURL=$1;", id)
 	var longURL string
 	err := row.Scan(&longURL)
@@ -94,6 +94,11 @@ func (r *inDatabaseRepository) GetURLS(userID string) ([]models.URLRecord, error
 	var result []models.URLRecord
 
 	for rows.Next() {
+		err := rows.Err()
+		if err != nil {
+			logger.Log.Error("Failed to iterate db", zap.String("error", err.Error()))
+			return nil, err
+		}
 		var urlRecord models.URLRecord
 		if err := rows.Scan(&urlRecord.ShortURL, &urlRecord.OriginalURL); err != nil {
 			logger.Log.Error("Failed to scan get urls result", zap.String("error", err.Error()))

@@ -87,8 +87,8 @@ func (s *urlService) CreateURL(urlBytes []byte, userID string) (string, error) {
 	return id, nil
 }
 
-func (s *urlService) GetURL(id string, userID string) (string, error) {
-	return s.repository.GetURL(id, userID)
+func (s *urlService) GetURL(id string) (string, error) {
+	return s.repository.GetURL(id)
 }
 
 func (s *urlService) GetURLS(userID string) ([]models.URLRecord, error) {
