@@ -144,6 +144,7 @@ func (h URLHandler) GetURLS(w http.ResponseWriter, r *http.Request) error {
 		return nil
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
 	if err := enc.Encode(urls); err != nil {
 		logger.Log.Error("failed encode body", zap.String("error", err.Error()))
