@@ -74,7 +74,7 @@ func (r *inDatabaseRepository) CreateURL(id string, url string, userID string) e
 }
 
 func (r *inDatabaseRepository) GetURL(id string, userID string) (string, error) {
-	row := r.db.QueryRow("SELECT LongURL FROM shortener WHERE shortURL=$1 AND userID=$2;", id, userID)
+	row := r.db.QueryRow("SELECT LongURL FROM shortener WHERE shortURL=$1;", id)
 	var longURL string
 	err := row.Scan(&longURL)
 	if err != nil {
