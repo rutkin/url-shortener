@@ -3,6 +3,8 @@ package repository
 import (
 	"errors"
 	"sync"
+
+	"github.com/rutkin/url-shortener/internal/app/models"
 )
 
 var errURLNotFound = errors.New("URL not found")
@@ -54,7 +56,7 @@ func (r *inMemoryRepository) GetURL(id string, userID string) (string, error) {
 	return url, nil
 }
 
-func (r *inMemoryRepository) GetURLS(userID string) ([]string, error) {
+func (r *inMemoryRepository) GetURLS(userID string) ([]models.URLRecord, error) {
 	return nil, nil
 }
 

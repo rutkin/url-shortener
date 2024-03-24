@@ -125,6 +125,34 @@ func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+func (h URLHandler) GetURLS(w http.ResponseWriter, r *http.Request) error {
+	userID := r.Context().Value(service.UserIDKey)
+	if userID == nil {
+		logger.Log.Error("userID value does not exists in context")
+		return errInvalidContext
+	}
+
+	urls, err := h.service.GetURLS(userID.(string))
+
+	if err != nil {
+		logger.Log.Error("failed to get urls by user id", zap.String("error", err.Error()))
+		return err
+	}
+
+	if len(urls) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return nil
+	}
+
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(urls); err != nil {
+		logger.Log.Error("failed encode body", zap.String("error", err.Error()))
+		return err
+	}
+
+	return nil
+}
+
 func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Request) error {
 	var req models.Request
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

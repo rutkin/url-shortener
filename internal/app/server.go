@@ -48,5 +48,6 @@ func (s Server) newRootRouter() http.Handler {
 	userIDRouter.Post("/api/shorten", handlers.NewHandler(s.urlHandler.CreateShortenWithJSONBody))
 	userIDRouter.Post("/api/shorten/batch", handlers.NewHandler(s.urlHandler.CreateBatch))
 	userIDRouter.Get("/ping", s.urlHandler.PingDB)
+	r.With(middleware.WithAuth).Get("/api/user/urls", handlers.NewHandler(s.urlHandler.GetURLS))
 	return r
 }

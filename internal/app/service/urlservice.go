@@ -9,6 +9,7 @@ import (
 
 	"github.com/rutkin/url-shortener/internal/app/config"
 	"github.com/rutkin/url-shortener/internal/app/logger"
+	"github.com/rutkin/url-shortener/internal/app/models"
 	"github.com/rutkin/url-shortener/internal/app/repository"
 	"go.uber.org/zap"
 
@@ -88,6 +89,10 @@ func (s *urlService) CreateURL(urlBytes []byte, userID string) (string, error) {
 
 func (s *urlService) GetURL(id string, userID string) (string, error) {
 	return s.repository.GetURL(id, userID)
+}
+
+func (s *urlService) GetURLS(userID string) ([]models.URLRecord, error) {
+	return s.repository.GetURLS(userID)
 }
 
 func (s *urlService) PingDB() error {
