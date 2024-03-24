@@ -95,7 +95,7 @@ func (r *inDatabaseRepository) GetURLS(userID string) ([]models.URLRecord, error
 
 	for rows.Next() {
 		var urlRecord models.URLRecord
-		if err := rows.Scan(urlRecord.ShortURL, urlRecord.OriginalURL); err != nil {
+		if err := rows.Scan(&urlRecord.ShortURL, &urlRecord.OriginalURL); err != nil {
 			logger.Log.Error("Failed to scan get urls result", zap.String("error", err.Error()))
 			return nil, err
 		}
