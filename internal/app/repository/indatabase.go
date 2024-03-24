@@ -59,7 +59,7 @@ func (r *inDatabaseRepository) CreateURLS(urls []URLRecord, userID string) error
 }
 
 func (r *inDatabaseRepository) CreateURL(id string, url string, userID string) error {
-	_, err := r.db.Exec("INSERT INTO shortener (shortURL, LongURL) Values ($1, $2, $3)", id, url, userID)
+	_, err := r.db.Exec("INSERT INTO shortener (shortURL, LongURL, userID) Values ($1, $2, $3)", id, url, userID)
 
 	if err != nil {
 		logger.Log.Error("Failed to insert in table", zap.String("error", err.Error()))
