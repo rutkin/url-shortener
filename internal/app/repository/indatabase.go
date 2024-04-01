@@ -121,7 +121,11 @@ func (r *inDatabaseRepository) DeleteURLS(urls []string, userID string) error {
 		FROM
 		(SELECT unnest(array[` + strings.Join(urls, ",") + `]) as shortURL) as data_table
 		where shortener.shortURL = data_table.shortURL AND userID=$1;`
-	r.db.Exec(query, userID)
+	_, err := r.db.Exec(query, userID)
+	if err != nil {
+		logger.Log.Error("Failed to delete urls from db", zap.String("error", err.Error()))
+		return err
+	}
 	return nil
 }
 
