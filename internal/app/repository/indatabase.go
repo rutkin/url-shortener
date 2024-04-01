@@ -3,11 +3,13 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/rutkin/url-shortener/internal/app/logger"
 	"github.com/rutkin/url-shortener/internal/app/models"
+	"github.com/rutkin/url-shortener/internal/app/repository"
 	"go.uber.org/zap"
 )
 
@@ -20,7 +22,7 @@ func NewInDatabaseRepository(db *sql.DB) (*inDatabaseRepository, error) {
 
 	defer tx.Rollback()
 
-	_, err = tx.Exec("CREATE TABLE IF NOT EXISTS shortener (shortURL VARCHAR (50) UNIQUE NOT NULL, LongURL VARCHAR (1000) NOT NULL, userID VARCHAR (50) NOT NULL)")
+	_, err = tx.Exec("CREATE TABLE IF NOT EXISTS shortener (shortURL VARCHAR (50) UNIQUE NOT NULL, LongURL VARCHAR (1000) NOT NULL, userID VARCHAR (50) NOT NULL, deleted BOOLEAN NOT NULL)")
 	if err != nil {
 		logger.Log.Error("Failed to create table", zap.String("error", err.Error()))
 		return nil, err
@@ -48,7 +50,7 @@ func (r *inDatabaseRepository) CreateURLS(urls []URLRecord, userID string) error
 	}
 
 	for _, url := range urls {
-		_, err = tx.Exec("INSERT INTO shortener (shortURL, LongURL, userID) Values ($1, $2, $3);", url.ID, url.URL, userID)
+		_, err = tx.Exec("INSERT INTO shortener (shortURL, LongURL, userID, deleted) Values ($1, $2, $3, FALSE);", url.ID, url.URL, userID)
 		if err != nil {
 			logger.Log.Error("Failed to create url", zap.String("error", err.Error()))
 			tx.Rollback()
@@ -59,7 +61,7 @@ func (r *inDatabaseRepository) CreateURLS(urls []URLRecord, userID string) error
 }
 
 func (r *inDatabaseRepository) CreateURL(id string, url string, userID string) error {
-	_, err := r.db.Exec("INSERT INTO shortener (shortURL, LongURL, userID) Values ($1, $2, $3)", id, url, userID)
+	_, err := r.db.Exec("INSERT INTO shortener (shortURL, LongURL, userID, deleted) Values ($1, $2, $3, FALSE)", id, url, userID)
 
 	if err != nil {
 		logger.Log.Error("Failed to insert in table", zap.String("error", err.Error()))
@@ -74,12 +76,16 @@ func (r *inDatabaseRepository) CreateURL(id string, url string, userID string) e
 }
 
 func (r *inDatabaseRepository) GetURL(id string) (string, error) {
-	row := r.db.QueryRow("SELECT LongURL FROM shortener WHERE shortURL=$1;", id)
+	row := r.db.QueryRow("SELECT LongURL, deleted FROM shortener WHERE shortURL=$1;", id)
 	var longURL string
-	err := row.Scan(&longURL)
+	var deleted bool
+	err := row.Scan(&longURL, &deleted)
 	if err != nil {
 		logger.Log.Error("Failed to select", zap.String("error", err.Error()))
 		return "", err
+	}
+	if deleted {
+		return "", repository.ErrURLDeleted
 	}
 	return longURL, nil
 }
@@ -111,6 +117,12 @@ func (r *inDatabaseRepository) GetURLS(userID string) ([]models.URLRecord, error
 }
 
 func (r *inDatabaseRepository) DeleteURLS(urls []string, userID string) error {
+	query := `
+		UPDATE shortener SET deleted = TRUE
+		FROM
+		(SELECT unnest(array[` + strings.Join(urls, ",") + `]) as shortURL) as data_table
+		where shortener.shortURL = data_table.shortURL AND userID=$1;`
+	r.db.Exec(query, userID)
 	return nil
 }
 

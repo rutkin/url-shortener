@@ -9,6 +9,7 @@ import (
 )
 
 var ErrConflict = errors.New("repository conflict")
+var ErrURLDeleted = errors.New("url deleted")
 
 type URLRecord struct {
 	ID  string
