@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"hash/crc32"
 	"net/url"
+	"sync"
 
 	"github.com/rutkin/url-shortener/internal/app/config"
 	"github.com/rutkin/url-shortener/internal/app/logger"
@@ -30,16 +31,22 @@ func NewURLService() (*urlService, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &urlService{db, r}, nil
+	return &urlService{db, r, sync.WaitGroup{}}, nil
 }
 
 type urlService struct {
 	db         *sql.DB
 	repository repository.Repository
+	wg         sync.WaitGroup
 }
 
 func (s *urlService) createShortURL(url []byte) string {
 	return fmt.Sprintf("%X", crc32.ChecksumIEEE(url))
+}
+
+func (s *urlService) deleteURLSAsync(urls []string, userID string) {
+	defer s.wg.Done()
+	s.repository.DeleteURLS(urls, userID)
 }
 
 func (s *urlService) CreateURLS(urls []string, userID string) ([]string, error) {
@@ -96,6 +103,8 @@ func (s *urlService) GetURLS(userID string) ([]models.URLRecord, error) {
 }
 
 func (s *urlService) DeleteURLS(urls []string, userID string) error {
+	s.wg.Add(1)
+	go s.deleteURLSAsync(urls, userID)
 	return nil
 }
 
@@ -104,6 +113,7 @@ func (s *urlService) PingDB() error {
 }
 
 func (s *urlService) Close() error {
+	s.wg.Wait()
 	if s.db != nil {
 		s.db.Close()
 	}

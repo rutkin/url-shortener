@@ -20,7 +20,7 @@ type Repository interface {
 	CreateURL(id string, url string, userID string) error
 	GetURL(id string) (string, error)
 	GetURLS(userID string) ([]models.URLRecord, error)
-	GetURLSUserID(urls []string) ([]string, error)
+	DeleteURLS(urls []string, userID string) error
 	Close() error
 }
 
