@@ -119,7 +119,7 @@ func (r *inDatabaseRepository) DeleteURLS(urls []string, userID string) error {
 	query := `
 		UPDATE shortener SET deleted = TRUE
 		FROM
-		(SELECT unnest(array[` + strings.Join(urls, ",") + `]) as shortURL) as data_table
+		(SELECT unnest(array['` + strings.Join(urls, "', '") + `']) as shortURL) as data_table
 		where shortener.shortURL = data_table.shortURL AND userID=$1;`
 	_, err := r.db.Exec(query, userID)
 	if err != nil {
