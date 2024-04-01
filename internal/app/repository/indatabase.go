@@ -9,7 +9,6 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/rutkin/url-shortener/internal/app/logger"
 	"github.com/rutkin/url-shortener/internal/app/models"
-	"github.com/rutkin/url-shortener/internal/app/repository"
 	"go.uber.org/zap"
 )
 
@@ -85,7 +84,7 @@ func (r *inDatabaseRepository) GetURL(id string) (string, error) {
 		return "", err
 	}
 	if deleted {
-		return "", repository.ErrURLDeleted
+		return "", ErrURLDeleted
 	}
 	return longURL, nil
 }
