@@ -17,6 +17,7 @@ import (
 
 var errUnsupportedBody = errors.New("unsupported body")
 var errInvalidContext = errors.New("invalid context")
+var errAccessDenied = errors.New("access denied")
 var maxBodySize = int64(2000)
 
 func NewURLHandler() (*URLHandler, error) {
@@ -121,6 +122,30 @@ func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Add("Location", url)
 	w.WriteHeader(http.StatusTemporaryRedirect)
+
+	return nil
+}
+
+func (h URLHandler) DeleteURLS(w http.ResponseWriter, r *http.Request) error {
+	var urls []string
+	if err := json.NewDecoder(r.Body).Decode(&urls); err != nil {
+		logger.Log.Error("failed to decode body", zap.String("error", err.Error()))
+		return err
+	}
+
+	userID := r.Context().Value(service.UserIDKey)
+	if userID == nil {
+		logger.Log.Error("userID value does not exists in context")
+		return errInvalidContext
+	}
+
+	err := h.service.DeleteURLS(urls, userID.(string))
+	if err != nil {
+		logger.Log.Error("failed to delete urls", zap.String("error", err.Error()))
+		return errAccessDenied
+	}
+
+	w.WriteHeader(http.StatusAccepted)
 
 	return nil
 }

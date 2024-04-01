@@ -11,6 +11,7 @@ type Service interface {
 	CreateURL(url []byte, userID string) (string, error)
 	GetURL(id string) (string, error)
 	GetURLS(userID string) ([]models.URLRecord, error)
+	DeleteURLS(urls []string, userID string) error
 	PingDB() error
 	Close() error
 }

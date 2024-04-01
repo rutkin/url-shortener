@@ -110,6 +110,10 @@ func (r *inDatabaseRepository) GetURLS(userID string) ([]models.URLRecord, error
 	return result, nil
 }
 
+func (r *inDatabaseRepository) GetURLSUserID(urls []string) ([]string, error) {
+	return nil, nil
+}
+
 func (r *inDatabaseRepository) Close() error {
 	return nil
 }

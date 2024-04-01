@@ -8,6 +8,7 @@ import (
 )
 
 var errURLNotFound = errors.New("URL not found")
+var errNotImplemented = errors.New("Not implemented")
 
 func NewInMemoryRepository() *inMemoryRepository {
 	res := new(inMemoryRepository)
@@ -64,6 +65,10 @@ func (r *inMemoryRepository) GetURL(id string) (string, error) {
 
 func (r *inMemoryRepository) GetURLS(userID string) ([]models.URLRecord, error) {
 	return nil, nil
+}
+
+func (r *inMemoryRepository) GetURLSUserID(urls []string) ([]string, error) {
+	return nil, errNotImplemented
 }
 
 func (r *inMemoryRepository) Close() error {

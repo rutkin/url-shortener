@@ -95,6 +95,10 @@ func (s *urlService) GetURLS(userID string) ([]models.URLRecord, error) {
 	return s.repository.GetURLS(userID)
 }
 
+func (s *urlService) DeleteURLS(urls []string, userID string) error {
+	return nil
+}
+
 func (s *urlService) PingDB() error {
 	return s.db.Ping()
 }
