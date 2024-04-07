@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"hash/crc32"
 	"net/url"
+	"sync"
 
 	"github.com/rutkin/url-shortener/internal/app/config"
 	"github.com/rutkin/url-shortener/internal/app/logger"
+	"github.com/rutkin/url-shortener/internal/app/models"
 	"github.com/rutkin/url-shortener/internal/app/repository"
 	"go.uber.org/zap"
 
@@ -29,19 +31,25 @@ func NewURLService() (*urlService, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &urlService{db, r}, nil
+	return &urlService{db, r, sync.WaitGroup{}}, nil
 }
 
 type urlService struct {
 	db         *sql.DB
 	repository repository.Repository
+	wg         sync.WaitGroup
 }
 
 func (s *urlService) createShortURL(url []byte) string {
 	return fmt.Sprintf("%X", crc32.ChecksumIEEE(url))
 }
 
-func (s *urlService) CreateURLS(urls []string) ([]string, error) {
+func (s *urlService) deleteURLSAsync(urls []string, userID string) {
+	defer s.wg.Done()
+	s.repository.DeleteURLS(urls, userID)
+}
+
+func (s *urlService) CreateURLS(urls []string, userID string) ([]string, error) {
 	var repositoryURLS []repository.URLRecord
 	var shortURLS []string
 	for _, url := range urls {
@@ -50,7 +58,7 @@ func (s *urlService) CreateURLS(urls []string) ([]string, error) {
 		repositoryURLS = append(repositoryURLS, repository.URLRecord{ID: shortURL, URL: url})
 	}
 
-	err := s.repository.CreateURLS(repositoryURLS)
+	err := s.repository.CreateURLS(repositoryURLS, userID)
 	if err != nil {
 		logger.Log.Error("failed to create urls", zap.String("error", err.Error()))
 		return nil, err
@@ -58,7 +66,7 @@ func (s *urlService) CreateURLS(urls []string) ([]string, error) {
 	return shortURLS, nil
 }
 
-func (s *urlService) CreateURL(urlBytes []byte) (string, error) {
+func (s *urlService) CreateURL(urlBytes []byte, userID string) (string, error) {
 	urlString := string(urlBytes)
 
 	_, err := url.ParseRequestURI(urlString)
@@ -71,7 +79,7 @@ func (s *urlService) CreateURL(urlBytes []byte) (string, error) {
 	}
 
 	id := fmt.Sprintf("%X", crc32.ChecksumIEEE(urlBytes))
-	err = s.repository.CreateURL(id, urlString)
+	err = s.repository.CreateURL(id, urlString, userID)
 
 	if errors.Is(err, repository.ErrConflict) {
 		return id, err
@@ -90,11 +98,22 @@ func (s *urlService) GetURL(id string) (string, error) {
 	return s.repository.GetURL(id)
 }
 
+func (s *urlService) GetURLS(userID string) ([]models.URLRecord, error) {
+	return s.repository.GetURLS(userID)
+}
+
+func (s *urlService) DeleteURLS(urls []string, userID string) error {
+	s.wg.Add(1)
+	go s.deleteURLSAsync(urls, userID)
+	return nil
+}
+
 func (s *urlService) PingDB() error {
 	return s.db.Ping()
 }
 
 func (s *urlService) Close() error {
+	s.wg.Wait()
 	if s.db != nil {
 		s.db.Close()
 	}
