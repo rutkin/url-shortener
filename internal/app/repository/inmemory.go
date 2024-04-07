@@ -12,23 +12,25 @@ var errNotImplemented = errors.New("not implemented")
 
 func NewInMemoryRepository() *inMemoryRepository {
 	res := new(inMemoryRepository)
-	res.urls = make(map[string]map[string]string)
+	res.urls = make(map[string]urlValue)
 
 	return res
 }
 
+type urlValue struct {
+	longURL string
+	userID  string
+}
+
 type inMemoryRepository struct {
-	urls map[string]map[string]string // [userID, [shortURL, longURL]]
+	urls map[string]urlValue // [shortURL, (longURL, userID)]
 	mu   sync.RWMutex
 }
 
 func (r *inMemoryRepository) CreateURLS(urls []URLRecord, userID string) error {
 	r.mu.Lock()
 	for _, url := range urls {
-		if r.urls[userID] == nil {
-			r.urls[userID] = make(map[string]string)
-		}
-		r.urls[userID][url.ID] = url.URL
+		r.urls[url.ID] = urlValue{longURL: url.URL, userID: userID}
 	}
 	r.mu.Unlock()
 	return nil
@@ -36,31 +38,21 @@ func (r *inMemoryRepository) CreateURLS(urls []URLRecord, userID string) error {
 
 func (r *inMemoryRepository) CreateURL(id string, url string, userID string) error {
 	r.mu.Lock()
-	if r.urls[userID] == nil {
-		r.urls[userID] = make(map[string]string)
-	}
-	r.urls[userID][id] = url
+	r.urls[id] = urlValue{longURL: url, userID: userID}
 	r.mu.Unlock()
 
 	return nil
 }
 
 func (r *inMemoryRepository) GetURL(id string) (string, error) {
-	var url string
 	r.mu.RLock()
-	for _, userURL := range r.urls {
-		var ok bool
-		if url, ok = userURL[id]; ok {
-			break
-		}
+	url, ok := r.urls[id]
+	if !ok {
+		return "", errURLNotFound
 	}
 	r.mu.RUnlock()
 
-	if len(url) == 0 {
-		return "", errURLNotFound
-	}
-
-	return url, nil
+	return url.longURL, nil
 }
 
 func (r *inMemoryRepository) GetURLS(userID string) ([]models.URLRecord, error) {

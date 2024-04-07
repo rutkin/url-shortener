@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -65,6 +66,16 @@ func (h URLHandler) writeURLBodyInJSON(w http.ResponseWriter, shortURL string, s
 	return nil
 }
 
+func (h URLHandler) getUserID(context context.Context) (string, error) {
+	userID := context.Value(service.UserIDKey)
+	if userID == nil {
+		logger.Log.Error("userID value does not exists in context")
+		return "", errInvalidContext
+	}
+
+	return userID.(string), nil
+}
+
 func (h URLHandler) Close() error {
 	return h.service.Close()
 }
@@ -79,14 +90,13 @@ func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request
 		return err
 	}
 
-	userID := r.Context().Value(service.UserIDKey)
-	if userID == nil {
-		logger.Log.Error("userID value does not exists in context")
-		return errInvalidContext
+	userID, err := h.getUserID(r.Context())
+	if err != nil {
+		return err
 	}
 
 	var id string
-	id, err = h.service.CreateURL(urlBytes, userID.(string))
+	id, err = h.service.CreateURL(urlBytes, userID)
 
 	if errors.Is(err, repository.ErrConflict) {
 		writeErr := h.writeURLBodyInText(w, id, http.StatusConflict)
@@ -106,12 +116,6 @@ func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request
 
 func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
-
-	userID := r.Context().Value(service.UserIDKey)
-	if userID == nil {
-		logger.Log.Error("userID value does not exists in context")
-		return errInvalidContext
-	}
 
 	url, err := h.service.GetURL(id)
 
@@ -133,13 +137,12 @@ func (h URLHandler) DeleteURLS(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	userID := r.Context().Value(service.UserIDKey)
-	if userID == nil {
-		logger.Log.Error("userID value does not exists in context")
-		return errInvalidContext
+	userID, err := h.getUserID(r.Context())
+	if err != nil {
+		return err
 	}
 
-	err := h.service.DeleteURLS(urls, userID.(string))
+	err = h.service.DeleteURLS(urls, userID)
 	if err != nil {
 		logger.Log.Error("failed to delete urls", zap.String("error", err.Error()))
 		return errAccessDenied
@@ -151,13 +154,12 @@ func (h URLHandler) DeleteURLS(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h URLHandler) GetURLS(w http.ResponseWriter, r *http.Request) error {
-	userID := r.Context().Value(service.UserIDKey)
-	if userID == nil {
-		logger.Log.Error("userID value does not exists in context")
-		return errInvalidContext
+	userID, err := h.getUserID(r.Context())
+	if err != nil {
+		return err
 	}
 
-	urls, err := h.service.GetURLS(userID.(string))
+	urls, err := h.service.GetURLS(userID)
 	for k, v := range urls {
 		urls[k].ShortURL = h.createResponseAddress(v.ShortURL)
 	}
@@ -194,13 +196,12 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 		return errUnsupportedBody
 	}
 
-	userID := r.Context().Value(service.UserIDKey)
-	if userID == nil {
-		logger.Log.Error("userID value does not exists in context")
-		return errInvalidContext
+	userID, err := h.getUserID(r.Context())
+	if err != nil {
+		return err
 	}
 
-	id, err := h.service.CreateURL([]byte(req.URL), userID.(string))
+	id, err := h.service.CreateURL([]byte(req.URL), userID)
 
 	if errors.Is(err, repository.ErrConflict) {
 		writeErr := h.writeURLBodyInJSON(w, id, http.StatusConflict)
@@ -247,13 +248,12 @@ func (h URLHandler) CreateBatch(w http.ResponseWriter, r *http.Request) error {
 		originalURLS = append(originalURLS, batchRecord.OriginalURL)
 	}
 
-	userID := r.Context().Value(service.UserIDKey)
-	if userID == nil {
-		logger.Log.Error("userID value does not exists in context")
-		return errInvalidContext
+	userID, err := h.getUserID(r.Context())
+	if err != nil {
+		return err
 	}
 
-	shortURLS, err := h.service.CreateURLS(originalURLS, userID.(string))
+	shortURLS, err := h.service.CreateURLS(originalURLS, userID)
 	if err != nil {
 		logger.Log.Error("failed create urls", zap.String("error", err.Error()))
 		return err

@@ -25,7 +25,7 @@ func NewInFileRepository(filename string) (*inFileRepository, error) {
 		return nil, err
 	}
 
-	urls := make(map[string]map[string]string)
+	urls := make(map[string]urlValue)
 	decoder := json.NewDecoder(f)
 	for {
 		var urlRecord urlRecord
@@ -38,10 +38,7 @@ func NewInFileRepository(filename string) (*inFileRepository, error) {
 			logger.Log.Error("Failed to decode url record", zap.String("error", err.Error()))
 		}
 
-		if urls[urlRecord.UserID] == nil {
-			urls[urlRecord.UserID] = make(map[string]string)
-		}
-		urls[urlRecord.UserID][urlRecord.ShortURL] = urlRecord.LongURL
+		urls[urlRecord.ShortURL] = urlValue{longURL: urlRecord.LongURL, userID: urlRecord.UserID}
 	}
 
 	return &inFileRepository{inMemoryRepository: &inMemoryRepository{urls: urls}, file: f, encoder: json.NewEncoder(f)}, nil

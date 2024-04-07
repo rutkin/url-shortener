@@ -3,10 +3,10 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"strings"
 
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/lib/pq"
 	"github.com/rutkin/url-shortener/internal/app/logger"
 	"github.com/rutkin/url-shortener/internal/app/models"
 	"go.uber.org/zap"
@@ -118,10 +118,8 @@ func (r *inDatabaseRepository) GetURLS(userID string) ([]models.URLRecord, error
 func (r *inDatabaseRepository) DeleteURLS(urls []string, userID string) error {
 	query := `
 		UPDATE shortener SET deleted = TRUE
-		FROM
-		(SELECT unnest(array['` + strings.Join(urls, "', '") + `']) as shortURL) as data_table
-		where shortener.shortURL = data_table.shortURL AND userID=$1;`
-	_, err := r.db.Exec(query, userID)
+		WHERE userID=$1 AND shortURL IN $2;`
+	_, err := r.db.Exec(query, userID, pq.Array(urls))
 	if err != nil {
 		logger.Log.Error("Failed to delete urls from db", zap.String("error", err.Error()))
 		return err

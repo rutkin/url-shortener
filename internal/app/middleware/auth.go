@@ -6,10 +6,10 @@ import (
 	"crypto/cipher"
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
-	"math/rand"
+	"errors"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/rutkin/url-shortener/internal/app/logger"
 	"github.com/rutkin/url-shortener/internal/app/service"
 	"go.uber.org/zap"
@@ -17,10 +17,12 @@ import (
 
 const password = "password"
 
+var ErrNotFound = errors.New("userID not found")
+
 func GetUserIDFromCookie(r *http.Request) (string, error) {
 	userIDCookie, err := r.Cookie("userID")
 	if err != nil {
-		return "", err
+		return "", ErrNotFound
 	}
 
 	key := sha256.Sum256([]byte(password))
@@ -77,8 +79,8 @@ func SetUserIDToCookies(w http.ResponseWriter, userID string) error {
 func WithUserID(h http.Handler) http.Handler {
 	authFn := func(w http.ResponseWriter, r *http.Request) {
 		userID, err := GetUserIDFromCookie(r)
-		if err != nil {
-			userID = fmt.Sprint(rand.Int31())
+		if errors.Is(err, ErrNotFound) {
+			userID = uuid.NewString()
 			err = SetUserIDToCookies(w, userID)
 		}
 
