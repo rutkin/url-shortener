@@ -118,8 +118,8 @@ func (r *inDatabaseRepository) GetURLS(userID string) ([]models.URLRecord, error
 func (r *inDatabaseRepository) DeleteURLS(urls []string, userID string) error {
 	query := `
 		UPDATE shortener SET deleted = TRUE
-		WHERE userID=$1 AND shortURL IN $2;`
-	_, err := r.db.Exec(query, userID, pq.Array(urls))
+		WHERE userID=$1 AND shortURL IN ($2);`
+	_, err := r.db.Exec(query, userID, pq.Array(&urls))
 	if err != nil {
 		logger.Log.Error("Failed to delete urls from db", zap.String("error", err.Error()))
 		return err
