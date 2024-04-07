@@ -46,11 +46,11 @@ func (r *inMemoryRepository) CreateURL(id string, url string, userID string) err
 
 func (r *inMemoryRepository) GetURL(id string) (string, error) {
 	r.mu.RLock()
+	defer r.mu.RUnlock()
 	url, ok := r.urls[id]
 	if !ok {
 		return "", errURLNotFound
 	}
-	r.mu.RUnlock()
 
 	return url.longURL, nil
 }
