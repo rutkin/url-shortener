@@ -41,7 +41,7 @@ type inDatabaseRepository struct {
 	db *sql.DB
 }
 
-func (r *inDatabaseRepository) CreateURLS(urls []URLRecord, userID string) error {
+func (r *inDatabaseRepository) CreateURLS(urls []URLRecord) error {
 	tx, err := r.db.Begin()
 	if err != nil {
 		logger.Log.Error("Failed to create transaction", zap.String("error", err.Error()))
@@ -49,7 +49,7 @@ func (r *inDatabaseRepository) CreateURLS(urls []URLRecord, userID string) error
 	}
 
 	for _, url := range urls {
-		_, err = tx.Exec("INSERT INTO shortener (shortURL, LongURL, userID, deleted) Values ($1, $2, $3, FALSE);", url.ID, url.URL, userID)
+		_, err = tx.Exec("INSERT INTO shortener (shortURL, LongURL, userID, deleted) Values ($1, $2, $3, FALSE);", url.ID, url.URL, url.UserID)
 		if err != nil {
 			logger.Log.Error("Failed to create url", zap.String("error", err.Error()))
 			tx.Rollback()
@@ -59,8 +59,8 @@ func (r *inDatabaseRepository) CreateURLS(urls []URLRecord, userID string) error
 	return tx.Commit()
 }
 
-func (r *inDatabaseRepository) CreateURL(id string, url string, userID string) error {
-	_, err := r.db.Exec("INSERT INTO shortener (shortURL, LongURL, userID, deleted) Values ($1, $2, $3, FALSE)", id, url, userID)
+func (r *inDatabaseRepository) CreateURL(urlRecord URLRecord) error {
+	_, err := r.db.Exec("INSERT INTO shortener (shortURL, LongURL, userID, deleted) Values ($1, $2, $3, FALSE)", urlRecord.ID, urlRecord.URL, urlRecord.UserID)
 
 	if err != nil {
 		logger.Log.Error("Failed to insert in table", zap.String("error", err.Error()))

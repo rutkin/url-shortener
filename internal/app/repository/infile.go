@@ -50,24 +50,22 @@ type inFileRepository struct {
 	encoder *json.Encoder
 }
 
-func (r *inFileRepository) CreateURLS(urls []URLRecord, userID string) error {
-	for _, url := range urls {
-		err := r.CreateURL(url.ID, url.URL, userID)
-		if err != nil {
-			logger.Log.Error("Failed to create url", zap.String("error", err.Error()))
-			return err
-		}
+func (r *inFileRepository) CreateURLS(urls []URLRecord) error {
+	err := r.inMemoryRepository.CreateURLS(urls)
+	if err != nil {
+		return err
 	}
+	r.encoder.Encode(urls)
 	return nil
 }
 
-func (r *inFileRepository) CreateURL(id string, url string, userID string) error {
-	err := r.inMemoryRepository.CreateURL(id, url, userID)
+func (r *inFileRepository) CreateURL(urlRecord URLRecord) error {
+	err := r.inMemoryRepository.CreateURL(urlRecord)
 	if err != nil {
 		return err
 	}
 
-	return r.encoder.Encode(urlRecord{id, url, userID})
+	return r.encoder.Encode(urlRecord)
 }
 
 func (r *inFileRepository) Close() error {

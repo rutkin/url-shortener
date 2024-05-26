@@ -233,6 +233,7 @@ func (h URLHandler) PingDB(w http.ResponseWriter, r *http.Request) {
 
 func (h URLHandler) CreateBatch(w http.ResponseWriter, r *http.Request) error {
 	var req models.BatchRequest
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Log.Error("failed to decode body", zap.String("error", err.Error()))
 		return err
@@ -244,22 +245,26 @@ func (h URLHandler) CreateBatch(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var originalURLS []string
+
 	for _, batchRecord := range req {
 		originalURLS = append(originalURLS, batchRecord.OriginalURL)
 	}
 
 	userID, err := h.getUserID(r.Context())
+
 	if err != nil {
 		return err
 	}
 
 	shortURLS, err := h.service.CreateURLS(originalURLS, userID)
+
 	if err != nil {
 		logger.Log.Error("failed create urls", zap.String("error", err.Error()))
 		return err
 	}
 
 	var response models.BatchResponse
+
 	for i := 0; i < len(req); i++ {
 		response = append(response, models.BatchResponseRecord{CorrelationID: req[i].CorrelationID, ShortURL: h.createResponseAddress(shortURLS[i])})
 	}
@@ -267,6 +272,7 @@ func (h URLHandler) CreateBatch(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	enc := json.NewEncoder(w)
+
 	if err := enc.Encode(response); err != nil {
 		logger.Log.Error("failed encode body", zap.String("error", err.Error()))
 		return err

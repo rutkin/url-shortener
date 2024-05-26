@@ -55,10 +55,10 @@ func (s *urlService) CreateURLS(urls []string, userID string) ([]string, error) 
 	for _, url := range urls {
 		shortURL := s.createShortURL([]byte(url))
 		shortURLS = append(shortURLS, shortURL)
-		repositoryURLS = append(repositoryURLS, repository.URLRecord{ID: shortURL, URL: url})
+		repositoryURLS = append(repositoryURLS, repository.URLRecord{ID: shortURL, URL: url, UserID: userID})
 	}
 
-	err := s.repository.CreateURLS(repositoryURLS, userID)
+	err := s.repository.CreateURLS(repositoryURLS)
 	if err != nil {
 		logger.Log.Error("failed to create urls", zap.String("error", err.Error()))
 		return nil, err
@@ -79,7 +79,7 @@ func (s *urlService) CreateURL(urlBytes []byte, userID string) (string, error) {
 	}
 
 	id := fmt.Sprintf("%X", crc32.ChecksumIEEE(urlBytes))
-	err = s.repository.CreateURL(id, urlString, userID)
+	err = s.repository.CreateURL(repository.URLRecord{id, urlString, userID})
 
 	if errors.Is(err, repository.ErrConflict) {
 		return id, err

@@ -12,13 +12,14 @@ var ErrConflict = errors.New("repository conflict")
 var ErrURLDeleted = errors.New("url deleted")
 
 type URLRecord struct {
-	ID  string
-	URL string
+	ID     string
+	URL    string
+	UserID string
 }
 
 type Repository interface {
-	CreateURLS(urls []URLRecord, userID string) error
-	CreateURL(id string, url string, userID string) error
+	CreateURLS(urls []URLRecord) error
+	CreateURL(urlRecord URLRecord) error
 	GetURL(id string) (string, error)
 	GetURLS(userID string) ([]models.URLRecord, error)
 	DeleteURLS(urls []string, userID string) error

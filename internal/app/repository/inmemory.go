@@ -27,18 +27,18 @@ type inMemoryRepository struct {
 	mu   sync.RWMutex
 }
 
-func (r *inMemoryRepository) CreateURLS(urls []URLRecord, userID string) error {
+func (r *inMemoryRepository) CreateURLS(urlRecords []URLRecord) error {
 	r.mu.Lock()
-	for _, url := range urls {
-		r.urls[url.ID] = urlValue{longURL: url.URL, userID: userID}
+	for _, record := range urlRecords {
+		r.urls[record.ID] = urlValue{longURL: record.URL, userID: record.UserID}
 	}
 	r.mu.Unlock()
 	return nil
 }
 
-func (r *inMemoryRepository) CreateURL(id string, url string, userID string) error {
+func (r *inMemoryRepository) CreateURL(urlRecord URLRecord) error {
 	r.mu.Lock()
-	r.urls[id] = urlValue{longURL: url, userID: userID}
+	r.urls[urlRecord.ID] = urlValue{longURL: urlRecord.URL, userID: urlRecord.UserID}
 	r.mu.Unlock()
 
 	return nil
