@@ -8,7 +8,10 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/models"
 )
 
+// error conflict in repository
 var ErrConflict = errors.New("repository conflict")
+
+// error url deleted
 var ErrURLDeleted = errors.New("url deleted")
 
 // URLRecord - record to store info about URL in repository
@@ -32,6 +35,7 @@ type Repository interface {
 	Close() error
 }
 
+// create new instance of repository in config settings
 func NewRepository(db *sql.DB) (Repository, error) {
 	if db != nil {
 		return NewInDatabaseRepository(db)
