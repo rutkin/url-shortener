@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "net/http/pprof"
+
 	"github.com/rutkin/url-shortener/internal/app"
 	"github.com/rutkin/url-shortener/internal/app/config"
 	"github.com/rutkin/url-shortener/internal/app/logger"
