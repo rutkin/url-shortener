@@ -21,6 +21,7 @@ var errInvalidContext = errors.New("invalid context")
 var errAccessDenied = errors.New("access denied")
 var maxBodySize = int64(2000)
 
+// create new instance of url handler
 func NewURLHandler() (*URLHandler, error) {
 	s, err := service.NewURLService()
 	if err != nil {
@@ -30,6 +31,7 @@ func NewURLHandler() (*URLHandler, error) {
 	return &URLHandler{s, config.ServerConfig.Base.String()}, nil
 }
 
+// url handler type
 type URLHandler struct {
 	service service.Service
 	address string
@@ -76,10 +78,12 @@ func (h URLHandler) getUserID(context context.Context) (string, error) {
 	return userID.(string), nil
 }
 
+// must to call after create, to avoid memory leak
 func (h URLHandler) Close() error {
 	return h.service.Close()
 }
 
+// create short url with text body
 func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request) error {
 	limitedBody := http.MaxBytesReader(w, r.Body, maxBodySize)
 	urlBytes, err := io.ReadAll(limitedBody)
@@ -114,6 +118,7 @@ func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request
 	return h.writeURLBodyInText(w, id, http.StatusCreated)
 }
 
+// get url by short id
 func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
@@ -130,6 +135,7 @@ func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// delete batch of urls
 func (h URLHandler) DeleteURLS(w http.ResponseWriter, r *http.Request) error {
 	var urls []string
 	if err := json.NewDecoder(r.Body).Decode(&urls); err != nil {
@@ -153,6 +159,7 @@ func (h URLHandler) DeleteURLS(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// get batch of urls
 func (h URLHandler) GetURLS(w http.ResponseWriter, r *http.Request) error {
 	userID, err := h.getUserID(r.Context())
 	if err != nil {
@@ -184,6 +191,7 @@ func (h URLHandler) GetURLS(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// create short url with json body
 func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Request) error {
 	var req models.Request
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -219,6 +227,7 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 	return h.writeURLBodyInJSON(w, id, http.StatusCreated)
 }
 
+// pind database
 func (h URLHandler) PingDB(w http.ResponseWriter, r *http.Request) {
 	err := h.service.PingDB()
 
@@ -231,6 +240,7 @@ func (h URLHandler) PingDB(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// create batch of short url
 func (h URLHandler) CreateBatch(w http.ResponseWriter, r *http.Request) error {
 	var req models.BatchRequest
 

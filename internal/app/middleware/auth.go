@@ -17,8 +17,10 @@ import (
 
 const password = "password"
 
+// error user not found
 var ErrNotFound = errors.New("userID not found")
 
+// get user id from cookie and decrypt
 func GetUserIDFromCookie(r *http.Request) (string, error) {
 	userIDCookie, err := r.Cookie("userID")
 	if err != nil {
@@ -54,6 +56,7 @@ func GetUserIDFromCookie(r *http.Request) (string, error) {
 	return string(userID), err
 }
 
+// set user id to cookie and encrypt
 func SetUserIDToCookies(w http.ResponseWriter, userID string) error {
 	key := sha256.Sum256([]byte(password))
 	aesblock, err := aes.NewCipher(key[:])
@@ -76,6 +79,7 @@ func SetUserIDToCookies(w http.ResponseWriter, userID string) error {
 	return nil
 }
 
+// middleware that set user id
 func WithUserID(h http.Handler) http.Handler {
 	authFn := func(w http.ResponseWriter, r *http.Request) {
 		userID, err := GetUserIDFromCookie(r)
@@ -97,6 +101,7 @@ func WithUserID(h http.Handler) http.Handler {
 	return http.HandlerFunc(authFn)
 }
 
+// middleware that check userid exists
 func WithAuth(h http.Handler) http.Handler {
 	authFn := func(w http.ResponseWriter, r *http.Request) {
 		userID, err := GetUserIDFromCookie(r)

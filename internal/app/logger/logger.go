@@ -2,8 +2,10 @@ package logger
 
 import "go.uber.org/zap"
 
+// global logger
 var Log *zap.Logger = zap.NewNop()
 
+// initialize global logger with settings
 func Initialize(level string) error {
 	lvl, err := zap.ParseAtomicLevel(level)
 	if err != nil {

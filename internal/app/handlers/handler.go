@@ -7,6 +7,7 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/repository"
 )
 
+// wrapper function convert error to http error status
 func NewHandler(fn func(http.ResponseWriter, *http.Request) error) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := fn(w, r)
