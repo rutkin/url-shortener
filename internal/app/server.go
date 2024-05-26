@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// create new instance of server
 func NewServer() (*Server, error) {
 	handler, err := handlers.NewURLHandler()
 	if err != nil {
@@ -20,10 +21,12 @@ func NewServer() (*Server, error) {
 	return &Server{handler}, nil
 }
 
+// server type
 type Server struct {
 	urlHandler *handlers.URLHandler
 }
 
+// start
 func (s Server) Start() error {
 	logger.Log.Info("Running server", zap.String("address", config.ServerConfig.Server.String()))
 
@@ -34,6 +37,7 @@ func (s Server) Start() error {
 	return err
 }
 
+// close
 func (s Server) Close() error {
 	return s.urlHandler.Close()
 }
