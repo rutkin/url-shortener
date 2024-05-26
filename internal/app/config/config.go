@@ -1,3 +1,4 @@
+// package config, contains settings for server
 package config
 
 import (
@@ -16,6 +17,7 @@ type Config struct {
 	DatabaseDSN     string
 }
 
+// ServerConfig - default server settings, address - http://localhost:8080, log level - info, storage - file
 var ServerConfig = Config{Server: "localhost:8080", Base: "http://localhost:8080", LogLevel: "info", FileStoragePath: "/tmp/short-url-db.json"}
 
 func (a NetAddress) String() string {

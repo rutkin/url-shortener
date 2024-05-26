@@ -11,13 +11,19 @@ import (
 var ErrConflict = errors.New("repository conflict")
 var ErrURLDeleted = errors.New("url deleted")
 
+// URLRecord - record to store info about URL in repository
 type URLRecord struct {
-	ID     string
-	URL    string
+	// ID - short url id
+	ID string
+	// URL - original URL
+	URL string
+	// UserID - user id
 	UserID string
 }
 
+// Repository - interface for store records
 type Repository interface {
+	// Create
 	CreateURLS(urls []URLRecord) error
 	CreateURL(urlRecord URLRecord) error
 	GetURL(id string) (string, error)
