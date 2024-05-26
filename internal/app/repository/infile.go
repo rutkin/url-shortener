@@ -16,6 +16,7 @@ type urlRecord struct {
 	UserID   string `json:"userID"`
 }
 
+// create new instance of file repository
 func NewInFileRepository(filename string) (*inFileRepository, error) {
 	f, err := os.OpenFile(filename, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
@@ -50,6 +51,7 @@ type inFileRepository struct {
 	encoder *json.Encoder
 }
 
+// store urls in file
 func (r *inFileRepository) CreateURLS(urls []URLRecord) error {
 	err := r.inMemoryRepository.CreateURLS(urls)
 	if err != nil {
@@ -59,6 +61,7 @@ func (r *inFileRepository) CreateURLS(urls []URLRecord) error {
 	return nil
 }
 
+// store url in file
 func (r *inFileRepository) CreateURL(urlRecord URLRecord) error {
 	err := r.inMemoryRepository.CreateURL(urlRecord)
 	if err != nil {
@@ -68,6 +71,7 @@ func (r *inFileRepository) CreateURL(urlRecord URLRecord) error {
 	return r.encoder.Encode(urlRecord)
 }
 
+// close file
 func (r *inFileRepository) Close() error {
 	return r.file.Close()
 }

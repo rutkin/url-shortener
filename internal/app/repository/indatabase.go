@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// create new instance of database repository
 func NewInDatabaseRepository(db *sql.DB) (*inDatabaseRepository, error) {
 	tx, err := db.Begin()
 	if err != nil {
@@ -41,6 +42,7 @@ type inDatabaseRepository struct {
 	db *sql.DB
 }
 
+// store urls in db
 func (r *inDatabaseRepository) CreateURLS(urls []URLRecord) error {
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -59,6 +61,7 @@ func (r *inDatabaseRepository) CreateURLS(urls []URLRecord) error {
 	return tx.Commit()
 }
 
+// store url in db
 func (r *inDatabaseRepository) CreateURL(urlRecord URLRecord) error {
 	_, err := r.db.Exec("INSERT INTO shortener (shortURL, LongURL, userID, deleted) Values ($1, $2, $3, FALSE)", urlRecord.ID, urlRecord.URL, urlRecord.UserID)
 
@@ -74,6 +77,7 @@ func (r *inDatabaseRepository) CreateURL(urlRecord URLRecord) error {
 	return nil
 }
 
+// get url from db
 func (r *inDatabaseRepository) GetURL(id string) (string, error) {
 	row := r.db.QueryRow("SELECT LongURL, deleted FROM shortener WHERE shortURL=$1;", id)
 	var longURL string
@@ -89,6 +93,7 @@ func (r *inDatabaseRepository) GetURL(id string) (string, error) {
 	return longURL, nil
 }
 
+// get urls from db
 func (r *inDatabaseRepository) GetURLS(userID string) ([]models.URLRecord, error) {
 	rows, err := r.db.Query("SELECT shortURL, LongURL FROM shortener WHERE userID=$1;", userID)
 	if err != nil {
@@ -115,6 +120,7 @@ func (r *inDatabaseRepository) GetURLS(userID string) ([]models.URLRecord, error
 	return result, nil
 }
 
+// delete urls from db
 func (r *inDatabaseRepository) DeleteURLS(urls []string, userID string) error {
 	query := `
 		UPDATE shortener SET deleted = TRUE
@@ -127,6 +133,7 @@ func (r *inDatabaseRepository) DeleteURLS(urls []string, userID string) error {
 	return nil
 }
 
+// close db
 func (r *inDatabaseRepository) Close() error {
 	return nil
 }

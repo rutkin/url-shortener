@@ -19,6 +19,7 @@ func (w *gzipWriter) useCompression() bool {
 	return contentType == "application/json" || contentType == "text/html"
 }
 
+// write body with gzip comprassion
 func (w *gzipWriter) Write(b []byte) (int, error) {
 	if w.useCompression() {
 		w.ResponseWriter.Header().Add("Content-Encoding", "gzip")
@@ -27,6 +28,7 @@ func (w *gzipWriter) Write(b []byte) (int, error) {
 	return w.ResponseWriter.Write(b)
 }
 
+// write header with gzip
 func (w *gzipWriter) WriteHeader(statusCode int) {
 	if w.useCompression() {
 		w.ResponseWriter.Header().Add("Content-Encoding", "gzip")
@@ -34,6 +36,7 @@ func (w *gzipWriter) WriteHeader(statusCode int) {
 	w.ResponseWriter.WriteHeader(statusCode)
 }
 
+// close
 func (w *gzipWriter) Close() error {
 	if w.useCompression() {
 		return w.Writer.Close()
@@ -41,6 +44,7 @@ func (w *gzipWriter) Close() error {
 	return nil
 }
 
+// comprassion middleware
 func WithCompress(h http.Handler) http.Handler {
 	compFn := func(w http.ResponseWriter, r *http.Request) {
 		ow := w
