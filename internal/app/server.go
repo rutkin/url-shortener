@@ -2,14 +2,12 @@ package app
 
 import (
 	"net/http"
-	_ "net/http/pprof"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rutkin/url-shortener/internal/app/config"
 	"github.com/rutkin/url-shortener/internal/app/handlers"
 	"github.com/rutkin/url-shortener/internal/app/logger"
-	my "github.com/rutkin/url-shortener/internal/app/middleware"
+	"github.com/rutkin/url-shortener/internal/app/middleware"
 	"go.uber.org/zap"
 )
 
@@ -42,16 +40,15 @@ func (s Server) Close() error {
 
 func (s Server) newRootRouter() http.Handler {
 	r := chi.NewRouter()
-	r.Use(my.WithLogging)
-	r.Use(my.WithCompress)
-	r.Mount("/debug", middleware.Profiler())
-	userIDRouter := r.With(my.WithUserID)
+	r.Use(middleware.WithLogging)
+	r.Use(middleware.WithCompress)
+	userIDRouter := r.With(middleware.WithUserID)
 	userIDRouter.Post("/", handlers.NewHandler(s.urlHandler.CreateURLWithTextBody))
 	userIDRouter.Get("/{id}", handlers.NewHandler(s.urlHandler.GetURL))
 	userIDRouter.Post("/api/shorten", handlers.NewHandler(s.urlHandler.CreateShortenWithJSONBody))
 	userIDRouter.Post("/api/shorten/batch", handlers.NewHandler(s.urlHandler.CreateBatch))
 	userIDRouter.Get("/ping", s.urlHandler.PingDB)
 	userIDRouter.Delete("/api/user/urls", handlers.NewHandler(s.urlHandler.DeleteURLS))
-	r.With(my.WithAuth).Get("/api/user/urls", handlers.NewHandler(s.urlHandler.GetURLS))
+	r.With(middleware.WithAuth).Get("/api/user/urls", handlers.NewHandler(s.urlHandler.GetURLS))
 	return r
 }
