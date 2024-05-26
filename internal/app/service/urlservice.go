@@ -79,7 +79,7 @@ func (s *urlService) CreateURL(urlBytes []byte, userID string) (string, error) {
 	}
 
 	id := fmt.Sprintf("%X", crc32.ChecksumIEEE(urlBytes))
-	err = s.repository.CreateURL(repository.URLRecord{id, urlString, userID})
+	err = s.repository.CreateURL(repository.URLRecord{ID: id, URL: urlString, UserID: userID})
 
 	if errors.Is(err, repository.ErrConflict) {
 		return id, err
