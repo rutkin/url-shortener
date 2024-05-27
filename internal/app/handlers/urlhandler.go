@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -20,6 +21,7 @@ var errInvalidContext = errors.New("invalid context")
 var errAccessDenied = errors.New("access denied")
 var maxBodySize = int64(2000)
 
+// create new instance of url handler
 func NewURLHandler() (*URLHandler, error) {
 	s, err := service.NewURLService()
 	if err != nil {
@@ -29,6 +31,7 @@ func NewURLHandler() (*URLHandler, error) {
 	return &URLHandler{s, config.ServerConfig.Base.String()}, nil
 }
 
+// url handler type
 type URLHandler struct {
 	service service.Service
 	address string
@@ -65,10 +68,22 @@ func (h URLHandler) writeURLBodyInJSON(w http.ResponseWriter, shortURL string, s
 	return nil
 }
 
+func (h URLHandler) getUserID(context context.Context) (string, error) {
+	userID := context.Value(service.UserIDKey)
+	if userID == nil {
+		logger.Log.Error("userID value does not exists in context")
+		return "", errInvalidContext
+	}
+
+	return userID.(string), nil
+}
+
+// must to call after create, to avoid memory leak
 func (h URLHandler) Close() error {
 	return h.service.Close()
 }
 
+// create short url with text body
 func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request) error {
 	limitedBody := http.MaxBytesReader(w, r.Body, maxBodySize)
 	urlBytes, err := io.ReadAll(limitedBody)
@@ -79,14 +94,13 @@ func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request
 		return err
 	}
 
-	userID := r.Context().Value(service.UserIDKey)
-	if userID == nil {
-		logger.Log.Error("userID value does not exists in context")
-		return errInvalidContext
+	userID, err := h.getUserID(r.Context())
+	if err != nil {
+		return err
 	}
 
 	var id string
-	id, err = h.service.CreateURL(urlBytes, userID.(string))
+	id, err = h.service.CreateURL(urlBytes, userID)
 
 	if errors.Is(err, repository.ErrConflict) {
 		writeErr := h.writeURLBodyInText(w, id, http.StatusConflict)
@@ -104,14 +118,9 @@ func (h URLHandler) CreateURLWithTextBody(w http.ResponseWriter, r *http.Request
 	return h.writeURLBodyInText(w, id, http.StatusCreated)
 }
 
+// get url by short id
 func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
-
-	userID := r.Context().Value(service.UserIDKey)
-	if userID == nil {
-		logger.Log.Error("userID value does not exists in context")
-		return errInvalidContext
-	}
 
 	url, err := h.service.GetURL(id)
 
@@ -126,6 +135,7 @@ func (h URLHandler) GetURL(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// delete batch of urls
 func (h URLHandler) DeleteURLS(w http.ResponseWriter, r *http.Request) error {
 	var urls []string
 	if err := json.NewDecoder(r.Body).Decode(&urls); err != nil {
@@ -133,13 +143,12 @@ func (h URLHandler) DeleteURLS(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	userID := r.Context().Value(service.UserIDKey)
-	if userID == nil {
-		logger.Log.Error("userID value does not exists in context")
-		return errInvalidContext
+	userID, err := h.getUserID(r.Context())
+	if err != nil {
+		return err
 	}
 
-	err := h.service.DeleteURLS(urls, userID.(string))
+	err = h.service.DeleteURLS(urls, userID)
 	if err != nil {
 		logger.Log.Error("failed to delete urls", zap.String("error", err.Error()))
 		return errAccessDenied
@@ -150,14 +159,14 @@ func (h URLHandler) DeleteURLS(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// get batch of urls
 func (h URLHandler) GetURLS(w http.ResponseWriter, r *http.Request) error {
-	userID := r.Context().Value(service.UserIDKey)
-	if userID == nil {
-		logger.Log.Error("userID value does not exists in context")
-		return errInvalidContext
+	userID, err := h.getUserID(r.Context())
+	if err != nil {
+		return err
 	}
 
-	urls, err := h.service.GetURLS(userID.(string))
+	urls, err := h.service.GetURLS(userID)
 	for k, v := range urls {
 		urls[k].ShortURL = h.createResponseAddress(v.ShortURL)
 	}
@@ -182,6 +191,7 @@ func (h URLHandler) GetURLS(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// create short url with json body
 func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Request) error {
 	var req models.Request
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -194,13 +204,12 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 		return errUnsupportedBody
 	}
 
-	userID := r.Context().Value(service.UserIDKey)
-	if userID == nil {
-		logger.Log.Error("userID value does not exists in context")
-		return errInvalidContext
+	userID, err := h.getUserID(r.Context())
+	if err != nil {
+		return err
 	}
 
-	id, err := h.service.CreateURL([]byte(req.URL), userID.(string))
+	id, err := h.service.CreateURL([]byte(req.URL), userID)
 
 	if errors.Is(err, repository.ErrConflict) {
 		writeErr := h.writeURLBodyInJSON(w, id, http.StatusConflict)
@@ -218,6 +227,7 @@ func (h URLHandler) CreateShortenWithJSONBody(w http.ResponseWriter, r *http.Req
 	return h.writeURLBodyInJSON(w, id, http.StatusCreated)
 }
 
+// pind database
 func (h URLHandler) PingDB(w http.ResponseWriter, r *http.Request) {
 	err := h.service.PingDB()
 
@@ -230,8 +240,10 @@ func (h URLHandler) PingDB(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// create batch of short url
 func (h URLHandler) CreateBatch(w http.ResponseWriter, r *http.Request) error {
 	var req models.BatchRequest
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Log.Error("failed to decode body", zap.String("error", err.Error()))
 		return err
@@ -243,23 +255,26 @@ func (h URLHandler) CreateBatch(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var originalURLS []string
+
 	for _, batchRecord := range req {
 		originalURLS = append(originalURLS, batchRecord.OriginalURL)
 	}
 
-	userID := r.Context().Value(service.UserIDKey)
-	if userID == nil {
-		logger.Log.Error("userID value does not exists in context")
-		return errInvalidContext
+	userID, err := h.getUserID(r.Context())
+
+	if err != nil {
+		return err
 	}
 
-	shortURLS, err := h.service.CreateURLS(originalURLS, userID.(string))
+	shortURLS, err := h.service.CreateURLS(originalURLS, userID)
+
 	if err != nil {
 		logger.Log.Error("failed create urls", zap.String("error", err.Error()))
 		return err
 	}
 
 	var response models.BatchResponse
+
 	for i := 0; i < len(req); i++ {
 		response = append(response, models.BatchResponseRecord{CorrelationID: req[i].CorrelationID, ShortURL: h.createResponseAddress(shortURLS[i])})
 	}
@@ -267,6 +282,7 @@ func (h URLHandler) CreateBatch(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	enc := json.NewEncoder(w)
+
 	if err := enc.Encode(response); err != nil {
 		logger.Log.Error("failed encode body", zap.String("error", err.Error()))
 		return err

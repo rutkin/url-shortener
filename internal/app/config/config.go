@@ -1,3 +1,4 @@
+// package config, contains settings for server
 package config
 
 import (
@@ -6,8 +7,10 @@ import (
 	"os"
 )
 
+// NetAddress - type for network address
 type NetAddress string
 
+// Config - configuration type
 type Config struct {
 	Server          NetAddress
 	Base            NetAddress
@@ -16,17 +19,21 @@ type Config struct {
 	DatabaseDSN     string
 }
 
+// ServerConfig - default server settings, address - http://localhost:8080, log level - info, storage - file
 var ServerConfig = Config{Server: "localhost:8080", Base: "http://localhost:8080", LogLevel: "info", FileStoragePath: "/tmp/short-url-db.json"}
 
+// return network address string
 func (a NetAddress) String() string {
 	return string(a)
 }
 
+// set network address
 func (a *NetAddress) Set(s string) error {
 	*a = NetAddress(s)
 	return nil
 }
 
+// parse config from argument and environment variables
 func ParseFlags() error {
 	flag.Var(&ServerConfig.Server, "a", "http server address")
 	flag.Var(&ServerConfig.Base, "b", "base server address")

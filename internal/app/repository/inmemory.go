@@ -10,67 +10,66 @@ import (
 var errURLNotFound = errors.New("URL not found")
 var errNotImplemented = errors.New("not implemented")
 
+// create new instance of repository in memory
 func NewInMemoryRepository() *inMemoryRepository {
 	res := new(inMemoryRepository)
-	res.urls = make(map[string]map[string]string)
+	res.urls = make(map[string]urlValue)
 
 	return res
 }
 
+type urlValue struct {
+	longURL string
+	userID  string
+}
+
 type inMemoryRepository struct {
-	urls map[string]map[string]string // [userID, [shortURL, longURL]]
+	urls map[string]urlValue // [shortURL, (longURL, userID)]
 	mu   sync.RWMutex
 }
 
-func (r *inMemoryRepository) CreateURLS(urls []URLRecord, userID string) error {
+// store urls in memory
+func (r *inMemoryRepository) CreateURLS(urlRecords []URLRecord) error {
 	r.mu.Lock()
-	for _, url := range urls {
-		if r.urls[userID] == nil {
-			r.urls[userID] = make(map[string]string)
-		}
-		r.urls[userID][url.ID] = url.URL
+	for _, record := range urlRecords {
+		r.urls[record.ID] = urlValue{longURL: record.URL, userID: record.UserID}
 	}
 	r.mu.Unlock()
 	return nil
 }
 
-func (r *inMemoryRepository) CreateURL(id string, url string, userID string) error {
+// store url in memory
+func (r *inMemoryRepository) CreateURL(urlRecord URLRecord) error {
 	r.mu.Lock()
-	if r.urls[userID] == nil {
-		r.urls[userID] = make(map[string]string)
-	}
-	r.urls[userID][id] = url
+	r.urls[urlRecord.ID] = urlValue{longURL: urlRecord.URL, userID: urlRecord.UserID}
 	r.mu.Unlock()
 
 	return nil
 }
 
+// get url from memoty
 func (r *inMemoryRepository) GetURL(id string) (string, error) {
-	var url string
 	r.mu.RLock()
-	for _, userURL := range r.urls {
-		var ok bool
-		if url, ok = userURL[id]; ok {
-			break
-		}
-	}
-	r.mu.RUnlock()
-
-	if len(url) == 0 {
+	defer r.mu.RUnlock()
+	url, ok := r.urls[id]
+	if !ok {
 		return "", errURLNotFound
 	}
 
-	return url, nil
+	return url.longURL, nil
 }
 
+// get urls from memory
 func (r *inMemoryRepository) GetURLS(userID string) ([]models.URLRecord, error) {
 	return nil, nil
 }
 
+// delete urls from memory
 func (r *inMemoryRepository) DeleteURLS(urls []string, userID string) error {
 	return errNotImplemented
 }
 
+// close
 func (r *inMemoryRepository) Close() error {
 	return nil
 }

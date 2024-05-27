@@ -16,6 +16,7 @@ type urlRecord struct {
 	UserID   string `json:"userID"`
 }
 
+// create new instance of file repository
 func NewInFileRepository(filename string) (*inFileRepository, error) {
 	f, err := os.OpenFile(filename, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
@@ -25,7 +26,7 @@ func NewInFileRepository(filename string) (*inFileRepository, error) {
 		return nil, err
 	}
 
-	urls := make(map[string]map[string]string)
+	urls := make(map[string]urlValue)
 	decoder := json.NewDecoder(f)
 	for {
 		var urlRecord urlRecord
@@ -38,10 +39,7 @@ func NewInFileRepository(filename string) (*inFileRepository, error) {
 			logger.Log.Error("Failed to decode url record", zap.String("error", err.Error()))
 		}
 
-		if urls[urlRecord.UserID] == nil {
-			urls[urlRecord.UserID] = make(map[string]string)
-		}
-		urls[urlRecord.UserID][urlRecord.ShortURL] = urlRecord.LongURL
+		urls[urlRecord.ShortURL] = urlValue{longURL: urlRecord.LongURL, userID: urlRecord.UserID}
 	}
 
 	return &inFileRepository{inMemoryRepository: &inMemoryRepository{urls: urls}, file: f, encoder: json.NewEncoder(f)}, nil
@@ -53,26 +51,27 @@ type inFileRepository struct {
 	encoder *json.Encoder
 }
 
-func (r *inFileRepository) CreateURLS(urls []URLRecord, userID string) error {
-	for _, url := range urls {
-		err := r.CreateURL(url.ID, url.URL, userID)
-		if err != nil {
-			logger.Log.Error("Failed to create url", zap.String("error", err.Error()))
-			return err
-		}
+// store urls in file
+func (r *inFileRepository) CreateURLS(urls []URLRecord) error {
+	err := r.inMemoryRepository.CreateURLS(urls)
+	if err != nil {
+		return err
 	}
+	r.encoder.Encode(urls)
 	return nil
 }
 
-func (r *inFileRepository) CreateURL(id string, url string, userID string) error {
-	err := r.inMemoryRepository.CreateURL(id, url, userID)
+// store url in file
+func (r *inFileRepository) CreateURL(urlRecord URLRecord) error {
+	err := r.inMemoryRepository.CreateURL(urlRecord)
 	if err != nil {
 		return err
 	}
 
-	return r.encoder.Encode(urlRecord{id, url, userID})
+	return r.encoder.Encode(urlRecord)
 }
 
+// close file
 func (r *inFileRepository) Close() error {
 	return r.file.Close()
 }
