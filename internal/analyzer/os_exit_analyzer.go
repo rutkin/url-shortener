@@ -12,6 +12,7 @@ var OsExitAnalyzer = &analysis.Analyzer{
 	Run:  run,
 }
 
+// analyze for using os.exit in main function
 func run(pass *analysis.Pass) (interface{}, error) {
 	for _, file := range pass.Files {
 		ast.Inspect(file, func(node ast.Node) bool {
