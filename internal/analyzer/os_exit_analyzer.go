@@ -6,6 +6,7 @@ import (
 	"golang.org/x/tools/go/analysis"
 )
 
+// os exit analyzer struct
 var OsExitAnalyzer = &analysis.Analyzer{
 	Name: "errcheck",
 	Doc:  "check for using os exit in main",
