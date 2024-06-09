@@ -12,31 +12,25 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func makeRequest(ts *httptest.Server, method, path string, body string, contentType string) (int, string) {
+func makeRequest(t *testing.B, ts *httptest.Server, method, path string, body string, contentType string) (int, string) {
 	var reader io.Reader
 	if body != "" {
 		reader = strings.NewReader(body)
 	}
 
 	req, err := http.NewRequest(method, ts.URL+path, reader)
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Accept-Encoding", "identity")
 
 	resp, err := ts.Client().Do(req)
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(t, err)
 
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(t, err)
 
 	return resp.StatusCode, string(respBody)
 }
@@ -57,7 +51,7 @@ func BenchmarkCreateURLS(t *testing.B) {
 
 		body := fmt.Sprintf("[%s]", strings.Join(batch, ","))
 
-		status, resp := makeRequest(ts, http.MethodPost, "/api/shorten/batch", body, "application/json")
+		status, resp := makeRequest(t, ts, http.MethodPost, "/api/shorten/batch", body, "application/json")
 		fmt.Printf("status: %d", status)
 		fmt.Printf("response: %s", resp)
 	}
