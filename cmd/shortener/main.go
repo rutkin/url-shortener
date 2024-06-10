@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	_ "net/http/pprof"
 
 	"github.com/rutkin/url-shortener/internal/app"
@@ -8,7 +9,15 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/logger"
 )
 
+var (
+	buildVersion string = "N/A"
+	buildDate    string = "N/A"
+	buildCommit  string = "N/A"
+)
+
 func main() {
+	fmt.Printf("Build version: %s\n Build date: %s\n Build commit: %s\n", buildVersion, buildDate, buildCommit)
+
 	err := config.ParseFlags()
 
 	if err != nil {
