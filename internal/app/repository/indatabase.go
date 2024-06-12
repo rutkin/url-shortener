@@ -100,6 +100,7 @@ func (r *inDatabaseRepository) GetURLS(userID string) ([]models.URLRecord, error
 		logger.Log.Error("Failed to get urls from db", zap.String("error", err.Error()))
 		return nil, err
 	}
+	defer rows.Close()
 
 	var result []models.URLRecord
 

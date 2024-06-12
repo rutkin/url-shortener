@@ -56,9 +56,9 @@ func TestRootRouter(t *testing.T) {
 		path         string
 		contentType  string
 		requestBody  string
-		expectedCode int
 		expectedBody string
 		location     string
+		expectedCode int
 	}{
 		{
 			name:         "method_post_unsupported_url",
