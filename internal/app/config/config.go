@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 )
 
 // NetAddress - type for network address
@@ -17,6 +18,7 @@ type Config struct {
 	LogLevel        string
 	FileStoragePath string
 	DatabaseDSN     string
+	EnableHTTPS     bool
 }
 
 // ServerConfig - default server settings, address - http://localhost:8080, log level - info, storage - file
@@ -40,6 +42,7 @@ func ParseFlags() error {
 	flag.StringVar(&ServerConfig.LogLevel, "l", "info", "log level")
 	flag.StringVar(&ServerConfig.FileStoragePath, "f", "/tmp/short-url-db.json", "file storage path")
 	flag.StringVar(&ServerConfig.DatabaseDSN, "d", "", "database dsn")
+	flag.BoolVar(&ServerConfig.EnableHTTPS, "s", false, "enable https")
 	flag.Parse()
 
 	if serverAddress, ok := os.LookupEnv("SERVER_ADDRESS"); ok {
@@ -62,6 +65,14 @@ func ParseFlags() error {
 
 	if databaseDSN, ok := os.LookupEnv("DATABASE_DSN"); ok {
 		ServerConfig.DatabaseDSN = databaseDSN
+	}
+
+	if enableHTTPS, ok := os.LookupEnv("ENABLE_HTTPS"); ok {
+		var err error
+		ServerConfig.EnableHTTPS, err = strconv.ParseBool(enableHTTPS)
+		if err != nil {
+			return fmt.Errorf("failed to parse enable https bool value from '%s'", enableHTTPS)
+		}
 	}
 
 	return nil

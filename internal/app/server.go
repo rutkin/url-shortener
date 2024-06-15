@@ -9,6 +9,7 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/logger"
 	"github.com/rutkin/url-shortener/internal/app/middleware"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 // create new instance of server
@@ -30,7 +31,22 @@ type Server struct {
 func (s Server) Start() error {
 	logger.Log.Info("Running server", zap.String("address", config.ServerConfig.Server.String()))
 
-	err := http.ListenAndServe(config.ServerConfig.Server.String(), s.newRootRouter())
+	var err error
+	if config.ServerConfig.EnableHTTPS {
+		manager := &autocert.Manager{
+			Cache:  autocert.DirCache("cache-dir"),
+			Prompt: autocert.AcceptTOS,
+		}
+
+		server := &http.Server{
+			Addr:      ":443",
+			Handler:   s.newRootRouter(),
+			TLSConfig: manager.TLSConfig(),
+		}
+		err = server.ListenAndServeTLS("", "")
+	} else {
+		err = http.ListenAndServe(config.ServerConfig.Server.String(), s.newRootRouter())
+	}
 
 	logger.Log.Info("Server stopped")
 
