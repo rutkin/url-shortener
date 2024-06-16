@@ -15,11 +15,11 @@ type NetAddress string
 // Config - configuration type
 type Config struct {
 	Server          NetAddress `json:"server_address"`
-	Base            NetAddress
+	Base            NetAddress `json:"base_url"`
 	LogLevel        string
-	FileStoragePath string
-	DatabaseDSN     string
-	EnableHTTPS     bool
+	FileStoragePath string `json:"file_storage_path"`
+	DatabaseDSN     string `json:"database_dsn"`
+	EnableHTTPS     bool   `json:"enable_https"`
 }
 
 // ServerConfig - default server settings, address - http://localhost:8080, log level - info, storage - file
@@ -39,8 +39,15 @@ func (a *NetAddress) Set(s string) error {
 // parse config from argument and environment variables
 func ParseFlags() error {
 	var configPath string
+	flagServerConfig := ServerConfig
 	flag.StringVar(&configPath, "c", "", "config file path")
 	flag.StringVar(&configPath, "config", "", "config file path")
+	flag.Var(&flagServerConfig.Server, "a", "http server address")
+	flag.Var(&flagServerConfig.Base, "b", "base server address")
+	flag.StringVar(&flagServerConfig.LogLevel, "l", "info", "log level")
+	flag.StringVar(&flagServerConfig.FileStoragePath, "f", "/tmp/short-url-db.json", "file storage path")
+	flag.StringVar(&flagServerConfig.DatabaseDSN, "d", "", "database dsn")
+	flag.BoolVar(&flagServerConfig.EnableHTTPS, "s", false, "enable https")
 	flag.Parse()
 
 	if len(configPath) > 0 {
@@ -53,13 +60,7 @@ func ParseFlags() error {
 		}
 	}
 
-	flag.Var(&ServerConfig.Server, "a", "http server address")
-	flag.Var(&ServerConfig.Base, "b", "base server address")
-	flag.StringVar(&ServerConfig.LogLevel, "l", "info", "log level")
-	flag.StringVar(&ServerConfig.FileStoragePath, "f", "/tmp/short-url-db.json", "file storage path")
-	flag.StringVar(&ServerConfig.DatabaseDSN, "d", "", "database dsn")
-	flag.BoolVar(&ServerConfig.EnableHTTPS, "s", false, "enable https")
-	flag.Parse()
+	ServerConfig = flagServerConfig
 
 	if serverAddress, ok := os.LookupEnv("SERVER_ADDRESS"); ok {
 		err := ServerConfig.Server.Set(serverAddress)
