@@ -1,7 +1,11 @@
 package app
 
 import (
+	"context"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/rutkin/url-shortener/internal/app/config"
@@ -33,16 +37,16 @@ func (s Server) Start() error {
 
 	var srv *http.Server
 
-	// idleConnsClosed := make(chan struct{})
-	// sigint := make(chan os.Signal, 1)
-	// signal.Notify(sigint, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
-	// go func() {
-	// 	<-sigint
-	// 	if err := srv.Shutdown(context.Background()); err != nil {
-	// 		logger.Log.Info("HTTP server Shutdown: ", zap.String("error", err.Error()))
-	// 	}
-	// 	close(idleConnsClosed)
-	// }()
+	idleConnsClosed := make(chan struct{})
+	sigint := make(chan os.Signal, 1)
+	signal.Notify(sigint, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+	go func() {
+		<-sigint
+		if err := srv.Shutdown(context.Background()); err != nil {
+			logger.Log.Info("HTTP server Shutdown: ", zap.String("error", err.Error()))
+		}
+		close(idleConnsClosed)
+	}()
 
 	var err error
 	if config.ServerConfig.EnableHTTPS {
@@ -62,9 +66,13 @@ func (s Server) Start() error {
 		err = srv.ListenAndServe()
 	}
 
-	//<-idleConnsClosed
+	<-idleConnsClosed
 
 	logger.Log.Info("Server stopped")
+
+	if err == http.ErrServerClosed {
+		return nil
+	}
 
 	return err
 }
