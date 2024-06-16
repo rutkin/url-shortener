@@ -1,7 +1,11 @@
 package app
 
 import (
+	"context"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/rutkin/url-shortener/internal/app/config"
@@ -31,6 +35,19 @@ type Server struct {
 func (s Server) Start() error {
 	logger.Log.Info("Running server", zap.String("address", config.ServerConfig.Server.String()))
 
+	var srv *http.Server
+
+	idleConnsClosed := make(chan struct{})
+	sigint := make(chan os.Signal, 1)
+	signal.Notify(sigint, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+	go func() {
+		<-sigint
+		if err := srv.Shutdown(context.Background()); err != nil {
+			logger.Log.Info("HTTP server Shutdown: ", zap.String("error", err.Error()))
+		}
+		close(idleConnsClosed)
+	}()
+
 	var err error
 	if config.ServerConfig.EnableHTTPS {
 		manager := &autocert.Manager{
@@ -38,15 +55,18 @@ func (s Server) Start() error {
 			Prompt: autocert.AcceptTOS,
 		}
 
-		server := &http.Server{
+		srv = &http.Server{
 			Addr:      ":443",
 			Handler:   s.newRootRouter(),
 			TLSConfig: manager.TLSConfig(),
 		}
-		err = server.ListenAndServeTLS("", "")
+		err = srv.ListenAndServeTLS("", "")
 	} else {
-		err = http.ListenAndServe(config.ServerConfig.Server.String(), s.newRootRouter())
+		srv = &http.Server{Addr: config.ServerConfig.Server.String(), Handler: s.newRootRouter()}
+		err = srv.ListenAndServe()
 	}
+
+	<-idleConnsClosed
 
 	logger.Log.Info("Server stopped")
 
