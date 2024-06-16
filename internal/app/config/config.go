@@ -2,6 +2,7 @@
 package config
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -13,7 +14,7 @@ type NetAddress string
 
 // Config - configuration type
 type Config struct {
-	Server          NetAddress
+	Server          NetAddress `json:"server_address"`
 	Base            NetAddress
 	LogLevel        string
 	FileStoragePath string
@@ -37,6 +38,21 @@ func (a *NetAddress) Set(s string) error {
 
 // parse config from argument and environment variables
 func ParseFlags() error {
+	var configPath string
+	flag.StringVar(&configPath, "c", "", "config file path")
+	flag.StringVar(&configPath, "config", "", "config file path")
+	flag.Parse()
+
+	if len(configPath) > 0 {
+		config, err := os.Open(configPath)
+		if err != nil {
+			return err
+		}
+		if err := json.NewDecoder(config).Decode(&ServerConfig); err != nil {
+			return err
+		}
+	}
+
 	flag.Var(&ServerConfig.Server, "a", "http server address")
 	flag.Var(&ServerConfig.Base, "b", "base server address")
 	flag.StringVar(&ServerConfig.LogLevel, "l", "info", "log level")
