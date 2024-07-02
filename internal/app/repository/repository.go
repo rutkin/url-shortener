@@ -32,6 +32,7 @@ type Repository interface {
 	GetURL(id string) (string, error)
 	GetURLS(userID string) ([]models.URLRecord, error)
 	DeleteURLS(urls []string, userID string) error
+	GetStats() (models.StatRecord, error)
 	Close() error
 }
 

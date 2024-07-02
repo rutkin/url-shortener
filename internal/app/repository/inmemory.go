@@ -69,6 +69,15 @@ func (r *inMemoryRepository) DeleteURLS(urls []string, userID string) error {
 	return errNotImplemented
 }
 
+// get stats
+func (r *inMemoryRepository) GetStats() (models.StatRecord, error) {
+	userSet := make(map[string]bool)
+	for _, urlValue := range r.urls {
+		userSet[urlValue.userID] = true
+	}
+	return models.StatRecord{URLS: len(r.urls), Users: len(userSet)}, nil
+}
+
 // close
 func (r *inMemoryRepository) Close() error {
 	return nil

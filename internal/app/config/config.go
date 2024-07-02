@@ -20,6 +20,7 @@ type Config struct {
 	FileStoragePath string `json:"file_storage_path"`
 	DatabaseDSN     string `json:"database_dsn"`
 	EnableHTTPS     bool   `json:"enable_https"`
+	TrustedSubnet   string `json:"trusted_subnet"`
 }
 
 // ServerConfig - default server settings, address - http://localhost:8080, log level - info, storage - file
@@ -48,6 +49,7 @@ func ParseFlags() error {
 	flag.StringVar(&flagServerConfig.FileStoragePath, "f", "/tmp/short-url-db.json", "file storage path")
 	flag.StringVar(&flagServerConfig.DatabaseDSN, "d", "", "database dsn")
 	flag.BoolVar(&flagServerConfig.EnableHTTPS, "s", false, "enable https")
+	flag.StringVar(&flagServerConfig.TrustedSubnet, "t", "", "trusted subnet")
 	flag.Parse()
 
 	if len(configPath) > 0 {
@@ -90,6 +92,10 @@ func ParseFlags() error {
 		if err != nil {
 			return fmt.Errorf("failed to parse enable https bool value from '%s'", enableHTTPS)
 		}
+	}
+
+	if trustedSubnet, ok := os.LookupEnv("TRUSTED_SUBNET"); ok {
+		ServerConfig.TrustedSubnet = trustedSubnet
 	}
 
 	return nil

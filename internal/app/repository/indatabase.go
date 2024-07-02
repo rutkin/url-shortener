@@ -134,6 +134,26 @@ func (r *inDatabaseRepository) DeleteURLS(urls []string, userID string) error {
 	return nil
 }
 
+// get stats
+func (r *inDatabaseRepository) GetStats() (models.StatRecord, error) {
+	row := r.db.QueryRow("SELECT COUNT(shortURL) shortener;")
+	var urlCount int
+	err := row.Scan(&urlCount)
+	if err != nil {
+		logger.Log.Error("Failed get url count", zap.String("error", err.Error()))
+		return models.StatRecord{}, err
+	}
+	row = r.db.QueryRow("SELECT COUNT(userID) shortener;")
+	var userCount int
+	err = row.Scan(&userCount)
+	if err != nil {
+		logger.Log.Error("Failed get user count", zap.String("error", err.Error()))
+		return models.StatRecord{}, err
+	}
+
+	return models.StatRecord{URLS: urlCount, Users: userCount}, nil
+}
+
 // close db
 func (r *inDatabaseRepository) Close() error {
 	return nil

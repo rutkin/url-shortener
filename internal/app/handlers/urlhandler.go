@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"net"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -19,6 +20,7 @@ import (
 var errUnsupportedBody = errors.New("unsupported body")
 var errInvalidContext = errors.New("invalid context")
 var errAccessDenied = errors.New("access denied")
+var errForbidden = errors.New("forbidden")
 var maxBodySize = int64(2000)
 
 // create new instance of url handler
@@ -28,13 +30,18 @@ func NewURLHandler() (*URLHandler, error) {
 		logger.Log.Error("failed to create url service", zap.String("error", err.Error()))
 		return nil, err
 	}
-	return &URLHandler{s, config.ServerConfig.Base.String()}, nil
+	_, trustedSubnet, err := net.ParseCIDR(config.ServerConfig.TrustedSubnet)
+	if err != nil {
+		logger.Log.Error("failed to parsed trusted subnet", zap.String("error", err.Error()))
+	}
+	return &URLHandler{s, config.ServerConfig.Base.String(), trustedSubnet}, nil
 }
 
 // url handler type
 type URLHandler struct {
-	service service.Service
-	address string
+	service       service.Service
+	address       string
+	trustedSubnet *net.IPNet
 }
 
 func (h URLHandler) createResponseAddress(shortURL string) string {
@@ -156,6 +163,30 @@ func (h URLHandler) DeleteURLS(w http.ResponseWriter, r *http.Request) error {
 
 	w.WriteHeader(http.StatusAccepted)
 
+	return nil
+}
+
+// get statistic
+func (h URLHandler) GetStats(w http.ResponseWriter, r *http.Request) error {
+	realIP := r.Header.Get("X-Real-IP")
+	ip := net.ParseIP(realIP)
+
+	if !h.trustedSubnet.Contains(ip) {
+		return errForbidden
+	}
+
+	resp, err := h.service.GetStats()
+	if err != nil {
+		return err
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(resp); err != nil {
+		logger.Log.Error("failed encode body", zap.String("error", err.Error()))
+		return err
+	}
+	w.WriteHeader(http.StatusOK)
 	return nil
 }
 

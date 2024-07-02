@@ -33,3 +33,9 @@ type URLRecord struct {
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
 }
+
+// statictics record
+type StatRecord struct {
+	URLS  int `json:"urls"`
+	Users int `json:"users"`
+}
