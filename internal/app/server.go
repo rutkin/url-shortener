@@ -2,9 +2,11 @@ package app
 
 import (
 	"context"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"github.com/go-chi/chi/v5"
@@ -14,6 +16,7 @@ import (
 	"github.com/rutkin/url-shortener/internal/app/middleware"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/acme/autocert"
+	"google.golang.org/grpc"
 )
 
 // create new instance of server
@@ -33,6 +36,22 @@ type Server struct {
 
 // start
 func (s Server) Start() error {
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	go func() {
+		s.startGRPC()
+		wg.Done()
+	}()
+	go func() {
+		s.startHTTP()
+		wg.Done()
+	}()
+	wg.Wait()
+	return nil
+}
+
+// start http server
+func (s Server) startHTTP() error {
 	logger.Log.Info("Running server", zap.String("address", config.ServerConfig.Server.String()))
 
 	var srv *http.Server
@@ -75,6 +94,26 @@ func (s Server) Start() error {
 	}
 
 	return err
+}
+
+// start grpc server
+func (s Server) startGRPC() error {
+	listen, err := net.Listen("tcp", ":3200")
+	if err != nil {
+		logger.Log.Error("failed to listen tcp server", zap.String("error", err.Error()))
+		return err
+	}
+	grpcServer := grpc.NewServer()
+	grpcHandler, err := handlers.NewGRPCHandler()
+	if err != nil {
+		return err
+	}
+	handlers.RegisterGRPCHandlerServer(grpcServer, grpcHandler)
+	if err := grpcServer.Serve(listen); err != nil {
+		logger.Log.Error("failed to serve grpc", zap.String("error", err.Error()))
+		return err
+	}
+	return nil
 }
 
 // close

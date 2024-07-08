@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package handlers;
+
+option go_package = "internal/app/handlers";
+
+message CreateURLRequest {
+    string long_url = 1;
+    string user_id = 2;
+}
+
+message CreateURLResponse {
+    string short_url = 1;
+    string error = 2;
+}
+
+service GRPCHandler {
+    rpc CreateURL(CreateURLRequest) returns (CreateURLResponse);
+}
