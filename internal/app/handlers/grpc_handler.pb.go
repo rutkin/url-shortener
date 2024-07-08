@@ -130,6 +130,421 @@ func (x *CreateURLResponse) GetError() string {
 	return ""
 }
 
+type CreateURLSRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	LongUrl []string `protobuf:"bytes,1,rep,name=long_url,json=longUrl,proto3" json:"long_url,omitempty"`
+	UserId  string   `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+}
+
+func (x *CreateURLSRequest) Reset() {
+	*x = CreateURLSRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateURLSRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateURLSRequest) ProtoMessage() {}
+
+func (x *CreateURLSRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateURLSRequest.ProtoReflect.Descriptor instead.
+func (*CreateURLSRequest) Descriptor() ([]byte, []int) {
+	return file_internal_app_handlers_grpc_handler_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CreateURLSRequest) GetLongUrl() []string {
+	if x != nil {
+		return x.LongUrl
+	}
+	return nil
+}
+
+func (x *CreateURLSRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type CreateURLSResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ShortUrl []string `protobuf:"bytes,1,rep,name=short_url,json=shortUrl,proto3" json:"short_url,omitempty"`
+	Error    string   `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+}
+
+func (x *CreateURLSResponse) Reset() {
+	*x = CreateURLSResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateURLSResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateURLSResponse) ProtoMessage() {}
+
+func (x *CreateURLSResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateURLSResponse.ProtoReflect.Descriptor instead.
+func (*CreateURLSResponse) Descriptor() ([]byte, []int) {
+	return file_internal_app_handlers_grpc_handler_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CreateURLSResponse) GetShortUrl() []string {
+	if x != nil {
+		return x.ShortUrl
+	}
+	return nil
+}
+
+func (x *CreateURLSResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type GetURLRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ShortUrl string `protobuf:"bytes,1,opt,name=short_url,json=shortUrl,proto3" json:"short_url,omitempty"`
+}
+
+func (x *GetURLRequest) Reset() {
+	*x = GetURLRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetURLRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetURLRequest) ProtoMessage() {}
+
+func (x *GetURLRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetURLRequest.ProtoReflect.Descriptor instead.
+func (*GetURLRequest) Descriptor() ([]byte, []int) {
+	return file_internal_app_handlers_grpc_handler_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetURLRequest) GetShortUrl() string {
+	if x != nil {
+		return x.ShortUrl
+	}
+	return ""
+}
+
+type GetURLResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	LongUrl string `protobuf:"bytes,1,opt,name=long_url,json=longUrl,proto3" json:"long_url,omitempty"`
+	Error   string `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+}
+
+func (x *GetURLResponse) Reset() {
+	*x = GetURLResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetURLResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetURLResponse) ProtoMessage() {}
+
+func (x *GetURLResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetURLResponse.ProtoReflect.Descriptor instead.
+func (*GetURLResponse) Descriptor() ([]byte, []int) {
+	return file_internal_app_handlers_grpc_handler_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetURLResponse) GetLongUrl() string {
+	if x != nil {
+		return x.LongUrl
+	}
+	return ""
+}
+
+func (x *GetURLResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type DeleteURLSRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ShortUrl []string `protobuf:"bytes,1,rep,name=short_url,json=shortUrl,proto3" json:"short_url,omitempty"`
+	UserId   string   `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+}
+
+func (x *DeleteURLSRequest) Reset() {
+	*x = DeleteURLSRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteURLSRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteURLSRequest) ProtoMessage() {}
+
+func (x *DeleteURLSRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteURLSRequest.ProtoReflect.Descriptor instead.
+func (*DeleteURLSRequest) Descriptor() ([]byte, []int) {
+	return file_internal_app_handlers_grpc_handler_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *DeleteURLSRequest) GetShortUrl() []string {
+	if x != nil {
+		return x.ShortUrl
+	}
+	return nil
+}
+
+func (x *DeleteURLSRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type DeleteURLSResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Error string `protobuf:"bytes,1,opt,name=error,proto3" json:"error,omitempty"`
+}
+
+func (x *DeleteURLSResponse) Reset() {
+	*x = DeleteURLSResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteURLSResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteURLSResponse) ProtoMessage() {}
+
+func (x *DeleteURLSResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteURLSResponse.ProtoReflect.Descriptor instead.
+func (*DeleteURLSResponse) Descriptor() ([]byte, []int) {
+	return file_internal_app_handlers_grpc_handler_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *DeleteURLSResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type GetStatsResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Urls  int64  `protobuf:"varint,1,opt,name=urls,proto3" json:"urls,omitempty"`
+	Users int64  `protobuf:"varint,2,opt,name=users,proto3" json:"users,omitempty"`
+	Error string `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
+}
+
+func (x *GetStatsResponse) Reset() {
+	*x = GetStatsResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetStatsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStatsResponse) ProtoMessage() {}
+
+func (x *GetStatsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStatsResponse.ProtoReflect.Descriptor instead.
+func (*GetStatsResponse) Descriptor() ([]byte, []int) {
+	return file_internal_app_handlers_grpc_handler_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetStatsResponse) GetUrls() int64 {
+	if x != nil {
+		return x.Urls
+	}
+	return 0
+}
+
+func (x *GetStatsResponse) GetUsers() int64 {
+	if x != nil {
+		return x.Users
+	}
+	return 0
+}
+
+func (x *GetStatsResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type Empty struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *Empty) Reset() {
+	*x = Empty{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Empty) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Empty) ProtoMessage() {}
+
+func (x *Empty) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_app_handlers_grpc_handler_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Empty.ProtoReflect.Descriptor instead.
+func (*Empty) Descriptor() ([]byte, []int) {
+	return file_internal_app_handlers_grpc_handler_proto_rawDescGZIP(), []int{9}
+}
+
 var File_internal_app_handlers_grpc_handler_proto protoreflect.FileDescriptor
 
 var file_internal_app_handlers_grpc_handler_proto_rawDesc = []byte{
@@ -145,12 +560,58 @@ var file_internal_app_handlers_grpc_handler_proto_rawDesc = []byte{
 	0x65, 0x12, 0x1b, 0x0a, 0x09, 0x73, 0x68, 0x6f, 0x72, 0x74, 0x5f, 0x75, 0x72, 0x6c, 0x18, 0x01,
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x73, 0x68, 0x6f, 0x72, 0x74, 0x55, 0x72, 0x6c, 0x12, 0x14,
 	0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65,
-	0x72, 0x72, 0x6f, 0x72, 0x32, 0x53, 0x0a, 0x0b, 0x47, 0x52, 0x50, 0x43, 0x48, 0x61, 0x6e, 0x64,
-	0x6c, 0x65, 0x72, 0x12, 0x44, 0x0a, 0x09, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x55, 0x52, 0x4c,
-	0x12, 0x1a, 0x2e, 0x68, 0x61, 0x6e, 0x64, 0x6c, 0x65, 0x72, 0x73, 0x2e, 0x43, 0x72, 0x65, 0x61,
-	0x74, 0x65, 0x55, 0x52, 0x4c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x68,
+	0x72, 0x72, 0x6f, 0x72, 0x22, 0x47, 0x0a, 0x11, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x55, 0x52,
+	0x4c, 0x53, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x6c, 0x6f, 0x6e,
+	0x67, 0x5f, 0x75, 0x72, 0x6c, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x07, 0x6c, 0x6f, 0x6e,
+	0x67, 0x55, 0x72, 0x6c, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x22, 0x47, 0x0a,
+	0x12, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x55, 0x52, 0x4c, 0x53, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x1b, 0x0a, 0x09, 0x73, 0x68, 0x6f, 0x72, 0x74, 0x5f, 0x75, 0x72, 0x6c,
+	0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x08, 0x73, 0x68, 0x6f, 0x72, 0x74, 0x55, 0x72, 0x6c,
+	0x12, 0x14, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x22, 0x2c, 0x0a, 0x0d, 0x47, 0x65, 0x74, 0x55, 0x52, 0x4c,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x73, 0x68, 0x6f, 0x72, 0x74,
+	0x5f, 0x75, 0x72, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x73, 0x68, 0x6f, 0x72,
+	0x74, 0x55, 0x72, 0x6c, 0x22, 0x41, 0x0a, 0x0e, 0x47, 0x65, 0x74, 0x55, 0x52, 0x4c, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x19, 0x0a, 0x08, 0x6c, 0x6f, 0x6e, 0x67, 0x5f, 0x75,
+	0x72, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6c, 0x6f, 0x6e, 0x67, 0x55, 0x72,
+	0x6c, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x22, 0x49, 0x0a, 0x11, 0x44, 0x65, 0x6c, 0x65, 0x74,
+	0x65, 0x55, 0x52, 0x4c, 0x53, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09,
+	0x73, 0x68, 0x6f, 0x72, 0x74, 0x5f, 0x75, 0x72, 0x6c, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52,
+	0x08, 0x73, 0x68, 0x6f, 0x72, 0x74, 0x55, 0x72, 0x6c, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65,
+	0x72, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72,
+	0x49, 0x64, 0x22, 0x2a, 0x0a, 0x12, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x55, 0x52, 0x4c, 0x53,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f,
+	0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x22, 0x52,
+	0x0a, 0x10, 0x47, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x75, 0x72, 0x6c, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03,
+	0x52, 0x04, 0x75, 0x72, 0x6c, 0x73, 0x12, 0x14, 0x0a, 0x05, 0x75, 0x73, 0x65, 0x72, 0x73, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x75, 0x73, 0x65, 0x72, 0x73, 0x12, 0x14, 0x0a, 0x05,
+	0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x72, 0x72,
+	0x6f, 0x72, 0x22, 0x07, 0x0a, 0x05, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x32, 0xdb, 0x02, 0x0a, 0x0b,
+	0x47, 0x52, 0x50, 0x43, 0x48, 0x61, 0x6e, 0x64, 0x6c, 0x65, 0x72, 0x12, 0x44, 0x0a, 0x09, 0x43,
+	0x72, 0x65, 0x61, 0x74, 0x65, 0x55, 0x52, 0x4c, 0x12, 0x1a, 0x2e, 0x68, 0x61, 0x6e, 0x64, 0x6c,
+	0x65, 0x72, 0x73, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x55, 0x52, 0x4c, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x68, 0x61, 0x6e, 0x64, 0x6c, 0x65, 0x72, 0x73, 0x2e,
+	0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x55, 0x52, 0x4c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x47, 0x0a, 0x0a, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x55, 0x52, 0x4c, 0x53, 0x12,
+	0x1b, 0x2e, 0x68, 0x61, 0x6e, 0x64, 0x6c, 0x65, 0x72, 0x73, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74,
+	0x65, 0x55, 0x52, 0x4c, 0x53, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x68,
 	0x61, 0x6e, 0x64, 0x6c, 0x65, 0x72, 0x73, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x55, 0x52,
-	0x4c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x17, 0x5a, 0x15, 0x69, 0x6e, 0x74,
+	0x4c, 0x53, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3b, 0x0a, 0x06, 0x47, 0x65,
+	0x74, 0x55, 0x52, 0x4c, 0x12, 0x17, 0x2e, 0x68, 0x61, 0x6e, 0x64, 0x6c, 0x65, 0x72, 0x73, 0x2e,
+	0x47, 0x65, 0x74, 0x55, 0x52, 0x4c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x18, 0x2e,
+	0x68, 0x61, 0x6e, 0x64, 0x6c, 0x65, 0x72, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x55, 0x52, 0x4c, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x47, 0x0a, 0x0a, 0x44, 0x65, 0x6c, 0x65, 0x74,
+	0x65, 0x55, 0x52, 0x4c, 0x53, 0x12, 0x1b, 0x2e, 0x68, 0x61, 0x6e, 0x64, 0x6c, 0x65, 0x72, 0x73,
+	0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x55, 0x52, 0x4c, 0x53, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x68, 0x61, 0x6e, 0x64, 0x6c, 0x65, 0x72, 0x73, 0x2e, 0x44, 0x65,
+	0x6c, 0x65, 0x74, 0x65, 0x55, 0x52, 0x4c, 0x53, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x37, 0x0a, 0x08, 0x47, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x73, 0x12, 0x0f, 0x2e, 0x68,
+	0x61, 0x6e, 0x64, 0x6c, 0x65, 0x72, 0x73, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x1a, 0x2e,
+	0x68, 0x61, 0x6e, 0x64, 0x6c, 0x65, 0x72, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74,
+	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x17, 0x5a, 0x15, 0x69, 0x6e, 0x74,
 	0x65, 0x72, 0x6e, 0x61, 0x6c, 0x2f, 0x61, 0x70, 0x70, 0x2f, 0x68, 0x61, 0x6e, 0x64, 0x6c, 0x65,
 	0x72, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
@@ -167,16 +628,32 @@ func file_internal_app_handlers_grpc_handler_proto_rawDescGZIP() []byte {
 	return file_internal_app_handlers_grpc_handler_proto_rawDescData
 }
 
-var file_internal_app_handlers_grpc_handler_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_internal_app_handlers_grpc_handler_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_internal_app_handlers_grpc_handler_proto_goTypes = []any{
-	(*CreateURLRequest)(nil),  // 0: handlers.CreateURLRequest
-	(*CreateURLResponse)(nil), // 1: handlers.CreateURLResponse
+	(*CreateURLRequest)(nil),   // 0: handlers.CreateURLRequest
+	(*CreateURLResponse)(nil),  // 1: handlers.CreateURLResponse
+	(*CreateURLSRequest)(nil),  // 2: handlers.CreateURLSRequest
+	(*CreateURLSResponse)(nil), // 3: handlers.CreateURLSResponse
+	(*GetURLRequest)(nil),      // 4: handlers.GetURLRequest
+	(*GetURLResponse)(nil),     // 5: handlers.GetURLResponse
+	(*DeleteURLSRequest)(nil),  // 6: handlers.DeleteURLSRequest
+	(*DeleteURLSResponse)(nil), // 7: handlers.DeleteURLSResponse
+	(*GetStatsResponse)(nil),   // 8: handlers.GetStatsResponse
+	(*Empty)(nil),              // 9: handlers.Empty
 }
 var file_internal_app_handlers_grpc_handler_proto_depIdxs = []int32{
 	0, // 0: handlers.GRPCHandler.CreateURL:input_type -> handlers.CreateURLRequest
-	1, // 1: handlers.GRPCHandler.CreateURL:output_type -> handlers.CreateURLResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: handlers.GRPCHandler.CreateURLS:input_type -> handlers.CreateURLSRequest
+	4, // 2: handlers.GRPCHandler.GetURL:input_type -> handlers.GetURLRequest
+	6, // 3: handlers.GRPCHandler.DeleteURLS:input_type -> handlers.DeleteURLSRequest
+	9, // 4: handlers.GRPCHandler.GetStats:input_type -> handlers.Empty
+	1, // 5: handlers.GRPCHandler.CreateURL:output_type -> handlers.CreateURLResponse
+	3, // 6: handlers.GRPCHandler.CreateURLS:output_type -> handlers.CreateURLSResponse
+	5, // 7: handlers.GRPCHandler.GetURL:output_type -> handlers.GetURLResponse
+	7, // 8: handlers.GRPCHandler.DeleteURLS:output_type -> handlers.DeleteURLSResponse
+	8, // 9: handlers.GRPCHandler.GetStats:output_type -> handlers.GetStatsResponse
+	5, // [5:10] is the sub-list for method output_type
+	0, // [0:5] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -212,6 +689,102 @@ func file_internal_app_handlers_grpc_handler_proto_init() {
 				return nil
 			}
 		}
+		file_internal_app_handlers_grpc_handler_proto_msgTypes[2].Exporter = func(v any, i int) any {
+			switch v := v.(*CreateURLSRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_app_handlers_grpc_handler_proto_msgTypes[3].Exporter = func(v any, i int) any {
+			switch v := v.(*CreateURLSResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_app_handlers_grpc_handler_proto_msgTypes[4].Exporter = func(v any, i int) any {
+			switch v := v.(*GetURLRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_app_handlers_grpc_handler_proto_msgTypes[5].Exporter = func(v any, i int) any {
+			switch v := v.(*GetURLResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_app_handlers_grpc_handler_proto_msgTypes[6].Exporter = func(v any, i int) any {
+			switch v := v.(*DeleteURLSRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_app_handlers_grpc_handler_proto_msgTypes[7].Exporter = func(v any, i int) any {
+			switch v := v.(*DeleteURLSResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_app_handlers_grpc_handler_proto_msgTypes[8].Exporter = func(v any, i int) any {
+			switch v := v.(*GetStatsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_internal_app_handlers_grpc_handler_proto_msgTypes[9].Exporter = func(v any, i int) any {
+			switch v := v.(*Empty); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -219,7 +792,7 @@ func file_internal_app_handlers_grpc_handler_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_internal_app_handlers_grpc_handler_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

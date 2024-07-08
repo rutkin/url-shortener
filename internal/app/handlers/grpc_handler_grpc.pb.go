@@ -19,7 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	GRPCHandler_CreateURL_FullMethodName = "/handlers.GRPCHandler/CreateURL"
+	GRPCHandler_CreateURL_FullMethodName  = "/handlers.GRPCHandler/CreateURL"
+	GRPCHandler_CreateURLS_FullMethodName = "/handlers.GRPCHandler/CreateURLS"
+	GRPCHandler_GetURL_FullMethodName     = "/handlers.GRPCHandler/GetURL"
+	GRPCHandler_DeleteURLS_FullMethodName = "/handlers.GRPCHandler/DeleteURLS"
+	GRPCHandler_GetStats_FullMethodName   = "/handlers.GRPCHandler/GetStats"
 )
 
 // GRPCHandlerClient is the client API for GRPCHandler service.
@@ -27,6 +31,10 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GRPCHandlerClient interface {
 	CreateURL(ctx context.Context, in *CreateURLRequest, opts ...grpc.CallOption) (*CreateURLResponse, error)
+	CreateURLS(ctx context.Context, in *CreateURLSRequest, opts ...grpc.CallOption) (*CreateURLSResponse, error)
+	GetURL(ctx context.Context, in *GetURLRequest, opts ...grpc.CallOption) (*GetURLResponse, error)
+	DeleteURLS(ctx context.Context, in *DeleteURLSRequest, opts ...grpc.CallOption) (*DeleteURLSResponse, error)
+	GetStats(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetStatsResponse, error)
 }
 
 type gRPCHandlerClient struct {
@@ -47,11 +55,55 @@ func (c *gRPCHandlerClient) CreateURL(ctx context.Context, in *CreateURLRequest,
 	return out, nil
 }
 
+func (c *gRPCHandlerClient) CreateURLS(ctx context.Context, in *CreateURLSRequest, opts ...grpc.CallOption) (*CreateURLSResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateURLSResponse)
+	err := c.cc.Invoke(ctx, GRPCHandler_CreateURLS_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gRPCHandlerClient) GetURL(ctx context.Context, in *GetURLRequest, opts ...grpc.CallOption) (*GetURLResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetURLResponse)
+	err := c.cc.Invoke(ctx, GRPCHandler_GetURL_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gRPCHandlerClient) DeleteURLS(ctx context.Context, in *DeleteURLSRequest, opts ...grpc.CallOption) (*DeleteURLSResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteURLSResponse)
+	err := c.cc.Invoke(ctx, GRPCHandler_DeleteURLS_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gRPCHandlerClient) GetStats(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetStatsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetStatsResponse)
+	err := c.cc.Invoke(ctx, GRPCHandler_GetStats_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GRPCHandlerServer is the server API for GRPCHandler service.
 // All implementations must embed UnimplementedGRPCHandlerServer
 // for forward compatibility
 type GRPCHandlerServer interface {
 	CreateURL(context.Context, *CreateURLRequest) (*CreateURLResponse, error)
+	CreateURLS(context.Context, *CreateURLSRequest) (*CreateURLSResponse, error)
+	GetURL(context.Context, *GetURLRequest) (*GetURLResponse, error)
+	DeleteURLS(context.Context, *DeleteURLSRequest) (*DeleteURLSResponse, error)
+	GetStats(context.Context, *Empty) (*GetStatsResponse, error)
 	mustEmbedUnimplementedGRPCHandlerServer()
 }
 
@@ -61,6 +113,18 @@ type UnimplementedGRPCHandlerServer struct {
 
 func (UnimplementedGRPCHandlerServer) CreateURL(context.Context, *CreateURLRequest) (*CreateURLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateURL not implemented")
+}
+func (UnimplementedGRPCHandlerServer) CreateURLS(context.Context, *CreateURLSRequest) (*CreateURLSResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateURLS not implemented")
+}
+func (UnimplementedGRPCHandlerServer) GetURL(context.Context, *GetURLRequest) (*GetURLResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetURL not implemented")
+}
+func (UnimplementedGRPCHandlerServer) DeleteURLS(context.Context, *DeleteURLSRequest) (*DeleteURLSResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteURLS not implemented")
+}
+func (UnimplementedGRPCHandlerServer) GetStats(context.Context, *Empty) (*GetStatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetStats not implemented")
 }
 func (UnimplementedGRPCHandlerServer) mustEmbedUnimplementedGRPCHandlerServer() {}
 
@@ -93,6 +157,78 @@ func _GRPCHandler_CreateURL_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GRPCHandler_CreateURLS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateURLSRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GRPCHandlerServer).CreateURLS(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GRPCHandler_CreateURLS_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GRPCHandlerServer).CreateURLS(ctx, req.(*CreateURLSRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GRPCHandler_GetURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetURLRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GRPCHandlerServer).GetURL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GRPCHandler_GetURL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GRPCHandlerServer).GetURL(ctx, req.(*GetURLRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GRPCHandler_DeleteURLS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteURLSRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GRPCHandlerServer).DeleteURLS(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GRPCHandler_DeleteURLS_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GRPCHandlerServer).DeleteURLS(ctx, req.(*DeleteURLSRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GRPCHandler_GetStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GRPCHandlerServer).GetStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GRPCHandler_GetStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GRPCHandlerServer).GetStats(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GRPCHandler_ServiceDesc is the grpc.ServiceDesc for GRPCHandler service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -103,6 +239,22 @@ var GRPCHandler_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateURL",
 			Handler:    _GRPCHandler_CreateURL_Handler,
+		},
+		{
+			MethodName: "CreateURLS",
+			Handler:    _GRPCHandler_CreateURLS_Handler,
+		},
+		{
+			MethodName: "GetURL",
+			Handler:    _GRPCHandler_GetURL_Handler,
+		},
+		{
+			MethodName: "DeleteURLS",
+			Handler:    _GRPCHandler_DeleteURLS_Handler,
+		},
+		{
+			MethodName: "GetStats",
+			Handler:    _GRPCHandler_GetStats_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
