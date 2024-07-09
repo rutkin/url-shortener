@@ -108,7 +108,7 @@ func (s *urlService) GetURLS(userID string) ([]models.URLRecord, error) {
 }
 
 // get stats
-func (s *urlService) GetStats() (models.StatRecord, error) {
+func (s *urlService) GetStats() (*models.StatRecord, error) {
 	return s.repository.GetStats()
 }
 

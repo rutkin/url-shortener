@@ -70,12 +70,12 @@ func (r *inMemoryRepository) DeleteURLS(urls []string, userID string) error {
 }
 
 // get stats
-func (r *inMemoryRepository) GetStats() (models.StatRecord, error) {
+func (r *inMemoryRepository) GetStats() (*models.StatRecord, error) {
 	userSet := make(map[string]bool)
 	for _, urlValue := range r.urls {
 		userSet[urlValue.userID] = true
 	}
-	return models.StatRecord{URLS: len(r.urls), Users: len(userSet)}, nil
+	return &models.StatRecord{URLS: len(r.urls), Users: len(userSet)}, nil
 }
 
 // close

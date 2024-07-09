@@ -135,23 +135,23 @@ func (r *inDatabaseRepository) DeleteURLS(urls []string, userID string) error {
 }
 
 // get stats
-func (r *inDatabaseRepository) GetStats() (models.StatRecord, error) {
+func (r *inDatabaseRepository) GetStats() (*models.StatRecord, error) {
 	row := r.db.QueryRow("SELECT COUNT(shortURL) shortener;")
 	var urlCount int
 	err := row.Scan(&urlCount)
 	if err != nil {
 		logger.Log.Error("Failed get url count", zap.String("error", err.Error()))
-		return models.StatRecord{}, err
+		return &models.StatRecord{}, err
 	}
-	row = r.db.QueryRow("SELECT COUNT(userID) shortener;")
+	row = r.db.QueryRow("SELECT COUNT(userID) FROM shortener;")
 	var userCount int
 	err = row.Scan(&userCount)
 	if err != nil {
 		logger.Log.Error("Failed get user count", zap.String("error", err.Error()))
-		return models.StatRecord{}, err
+		return &models.StatRecord{}, err
 	}
 
-	return models.StatRecord{URLS: urlCount, Users: userCount}, nil
+	return &models.StatRecord{URLS: urlCount, Users: userCount}, nil
 }
 
 // close db
