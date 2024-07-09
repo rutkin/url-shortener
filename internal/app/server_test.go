@@ -10,11 +10,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/rutkin/url-shortener/internal/app/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func testRequest(t *testing.T, ts *httptest.Server, method, path string, body string, contentType string) (int, string) {
+func testRequest(t *testing.T, ts *httptest.Server, method, path string, body string, contentType string, headers map[string]string) (int, string) {
 	var reader io.Reader
 	if body != "" {
 		reader = strings.NewReader(body)
@@ -24,6 +25,10 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Accept-Encoding", "identity")
+
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
 
 	ts.Client().CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
 		return http.ErrUseLastResponse
@@ -40,6 +45,9 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string, body st
 }
 
 func TestRootRouter(t *testing.T) {
+	t.Setenv("TRUSTED_SUBNET", "127.0.0.1/32")
+	err := config.ParseFlags()
+	require.NoError(t, err)
 	server, err := NewServer()
 	require.NoError(t, err)
 	defer server.Close()
@@ -59,6 +67,7 @@ func TestRootRouter(t *testing.T) {
 		expectedBody string
 		location     string
 		expectedCode int
+		headers      map[string]string
 	}{
 		{
 			name:         "method_post_unsupported_url",
@@ -118,11 +127,36 @@ func TestRootRouter(t *testing.T) {
 			expectedBody: `{"result":"http://localhost:8080/9718264F"}
 `,
 		},
+		{
+			name:         "method_get_stats_forbidden_empty",
+			method:       http.MethodGet,
+			path:         "/api/internal/stats",
+			contentType:  "application/json",
+			expectedCode: http.StatusForbidden,
+		},
+		{
+			name:         "method_get_stats_forbidden",
+			method:       http.MethodGet,
+			path:         "/api/internal/stats",
+			contentType:  "application/json",
+			expectedCode: http.StatusForbidden,
+			headers:      map[string]string{"X-Real-IP": "127.0.0.2"},
+		},
+		{
+			name:         "method_get_stats_ok",
+			method:       http.MethodGet,
+			path:         "/api/internal/stats",
+			contentType:  "application/json",
+			expectedCode: http.StatusOK,
+			headers:      map[string]string{"X-Real-IP": "127.0.0.1"},
+			expectedBody: `{"urls":3,"users":2}
+`,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			status, body := testRequest(t, ts, tt.method, tt.path, tt.requestBody, tt.contentType)
+			status, body := testRequest(t, ts, tt.method, tt.path, tt.requestBody, tt.contentType, tt.headers)
 			assert.Equal(t, tt.expectedCode, status)
 
 			if tt.expectedBody != "" {

@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package handlers;
+
+option go_package = "internal/app/handlers";
+
+message CreateURLRequest {
+    string long_url = 1;
+    string user_id = 2;
+}
+
+message CreateURLResponse {
+    string short_url = 1;
+    string error = 2;
+}
+
+message CreateURLSRequest {
+    repeated string long_url = 1;
+    string user_id = 2; 
+}
+
+message CreateURLSResponse {
+    repeated string short_url = 1;
+    string error = 2;
+}
+
+message GetURLRequest {
+    string short_url = 1;
+}
+
+message GetURLResponse {
+    string long_url = 1;
+    string error = 2;
+}
+
+message DeleteURLSRequest {
+    repeated string short_url = 1;
+    string user_id = 2;
+}
+
+message DeleteURLSResponse {
+    string error = 1;
+}
+
+message GetStatsResponse {
+    int64 urls = 1;
+    int64 users = 2;
+    string error = 3;
+}
+
+message Empty{}
+
+service GRPCHandler {
+    rpc CreateURL(CreateURLRequest) returns (CreateURLResponse);
+    rpc CreateURLS(CreateURLSRequest) returns (CreateURLSResponse);
+    rpc GetURL(GetURLRequest) returns (GetURLResponse);
+    rpc DeleteURLS(DeleteURLSRequest) returns (DeleteURLSResponse);
+    rpc GetStats(Empty) returns (GetStatsResponse);
+}

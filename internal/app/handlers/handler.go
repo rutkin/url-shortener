@@ -17,6 +17,8 @@ func NewHandler(fn func(http.ResponseWriter, *http.Request) error) http.HandlerF
 		} else if errors.Is(err, repository.ErrURLDeleted) {
 			w.WriteHeader(http.StatusGone)
 			return
+		} else if errors.Is(err, errForbidden) {
+			w.WriteHeader(http.StatusForbidden)
 		}
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)

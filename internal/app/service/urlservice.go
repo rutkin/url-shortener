@@ -107,6 +107,11 @@ func (s *urlService) GetURLS(userID string) ([]models.URLRecord, error) {
 	return s.repository.GetURLS(userID)
 }
 
+// get stats
+func (s *urlService) GetStats() (models.StatRecord, error) {
+	return s.repository.GetStats()
+}
+
 // delete urls
 func (s *urlService) DeleteURLS(urls []string, userID string) error {
 	s.wg.Add(1)
